@@ -27,15 +27,13 @@ if [[ "${CLEAN_BUILD:-1}" == "1" ]]; then
 fi
 
 SKIP_PACKAGES=()
-while IFS= read -r pkg; do
-  if [[ -n "${pkg}" ]]; then
-    SKIP_PACKAGES+=("${pkg}")
-  fi
-done < <(
-  uv run colcon list --base-paths "${ROOT_DIR}/src" --names-only \
-    | grep -E "^(python_qt_binding|qt_dotgraph|qt_gui|qt_gui_cpp|qt_gui_py_common|rqt($|_)|rviz($|_)|rviz2$|interactive_markers$|tango_icons_vendor$|intra_process_demo$|cam2image$|showimage$|image_tools$)" \
-    || true
-)
+if [[ -n "${PACKAGES_SKIP:-}" ]]; then
+  for pkg in ${PACKAGES_SKIP}; do
+    if [[ -n "${pkg}" ]]; then
+      SKIP_PACKAGES+=("${pkg}")
+    fi
+  done
+fi
 
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
 PYTHON_EXECUTABLE="${ROOT_DIR}/.venv/bin/python"
@@ -50,7 +48,7 @@ BUILD_CMD=(
 )
 
 if (( ${#SKIP_PACKAGES[@]} > 0 )); then
-  echo "Skipping GUI packages:"
+  echo "Skipping packages:"
   printf '  %s\n' "${SKIP_PACKAGES[@]}"
   BUILD_CMD+=(--packages-skip "${SKIP_PACKAGES[@]}")
 fi

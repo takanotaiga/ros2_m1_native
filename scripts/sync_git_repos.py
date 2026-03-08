@@ -62,7 +62,18 @@ def sync_repo(
 
     if not repo_path.exists():
         print(f"[clone] {repo_name}")
-        run(["git", "clone", "--origin", "origin", repo_url, str(repo_path)])
+        run(
+            [
+                "git",
+                "clone",
+                "--origin",
+                "origin",
+                "--no-checkout",
+                "--filter=blob:none",
+                repo_url,
+                str(repo_path),
+            ]
+        )
     else:
         current_url = run(
             ["git", "config", "--get", "remote.origin.url"], cwd=repo_path, capture=True
@@ -82,11 +93,20 @@ def sync_repo(
                 )
 
     print(f"[fetch] {repo_name}")
-    run(["git", "fetch", "--tags", "--force", "origin"], cwd=repo_path)
+    fetched_by_ref = False
+    try:
+        run(["git", "fetch", "--no-tags", "--force", "origin", repo_version], cwd=repo_path)
+        fetched_by_ref = True
+    except RuntimeError:
+        # Fallback for remotes that don't allow direct SHA/ref fetches.
+        run(["git", "fetch", "--no-tags", "--force", "origin"], cwd=repo_path)
 
     print(f"[checkout] {repo_name} -> {repo_version}")
     try:
-        run(["git", "checkout", "--force", repo_version], cwd=repo_path)
+        if fetched_by_ref:
+            run(["git", "checkout", "--force", "FETCH_HEAD"], cwd=repo_path)
+        else:
+            run(["git", "checkout", "--force", repo_version], cwd=repo_path)
     except RuntimeError:
         if not allow_non_pinned:
             raise

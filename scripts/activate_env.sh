@@ -10,6 +10,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 export ROS2_M1_NATIVE_ROOT="${ROOT_DIR}"
 export ROS2_LOCAL_DEPS_PREFIX="${ROOT_DIR}/.local/deps"
+export ROS2_THIRD_PARTY_SRC_DIR="${ROOT_DIR}/.deps/third_party"
 
 unset HOMEBREW_PREFIX
 unset HOMEBREW_CELLAR
@@ -17,14 +18,19 @@ unset HOMEBREW_REPOSITORY
 
 export PATH="${ROOT_DIR}/.local/tools/cmake/bin:${ROOT_DIR}/.venv/bin:${HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PATH="${ROS2_LOCAL_DEPS_PREFIX}/bin:${PATH}"
+export PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/bin:${PATH}"
 if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
   PYTHON_HOST_BINDIR="$("${ROOT_DIR}/.venv/bin/python" -c 'import sysconfig; print(sysconfig.get_config_var("BINDIR"))')"
   export PATH="${PYTHON_HOST_BINDIR}:${PATH}"
 fi
-export CMAKE_PREFIX_PATH="${ROS2_LOCAL_DEPS_PREFIX}:${CMAKE_PREFIX_PATH:-}"
+if command -v xcrun >/dev/null 2>&1; then
+  export SDKROOT="${SDKROOT:-$(xcrun --sdk macosx --show-sdk-path)}"
+  export CMAKE_OSX_SYSROOT="${CMAKE_OSX_SYSROOT:-${SDKROOT}}"
+fi
+export CMAKE_PREFIX_PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5:${ROS2_LOCAL_DEPS_PREFIX}:${CMAKE_PREFIX_PATH:-}"
 export CMAKE_LIBRARY_PATH="${ROS2_LOCAL_DEPS_PREFIX}/lib:${CMAKE_LIBRARY_PATH:-}"
 export CMAKE_INCLUDE_PATH="${ROS2_LOCAL_DEPS_PREFIX}/include:${CMAKE_INCLUDE_PATH:-}"
-export PKG_CONFIG_PATH="${ROS2_LOCAL_DEPS_PREFIX}/lib/pkgconfig:${ROS2_LOCAL_DEPS_PREFIX}/share/pkgconfig:${PKG_CONFIG_PATH:-}"
+export PKG_CONFIG_PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/lib/pkgconfig:${ROS2_LOCAL_DEPS_PREFIX}/lib/pkgconfig:${ROS2_LOCAL_DEPS_PREFIX}/share/pkgconfig:${PKG_CONFIG_PATH:-}"
 export COLCON_EXTENSION_BLOCKLIST="${COLCON_EXTENSION_BLOCKLIST:-colcon_core.event_handler.desktop_notification}"
 export PYTHONNOUSERSITE=1
 

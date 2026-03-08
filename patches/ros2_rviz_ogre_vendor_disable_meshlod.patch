@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ src/ros2/rviz/rviz_ogre_vendor/CMakeLists.txt
+@@ -190,6 +190,7 @@ macro(build_ogre)
+       -DOGRE_BUILD_COMPONENT_PYTHON:BOOL=FALSE
+       -DOGRE_BUILD_COMPONENT_JAVA:BOOL=FALSE
+       -DOGRE_BUILD_COMPONENT_CSHARP:BOOL=FALSE
++      -DOGRE_BUILD_COMPONENT_MESHLODGENERATOR:BOOL=FALSE
+       -DOGRE_BUILD_COMPONENT_BITES:BOOL=FALSE
+       ${extra_cmake_args}
+       -Wno-dev

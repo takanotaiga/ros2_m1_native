@@ -34,4 +34,3 @@ CLEAN_BUILD=0 ./scripts/run_isolated_build.sh
 ## Notes
 - Homebrew is not used by these scripts.
 - External sources are locked by commit hash in `ros2.lock.repos` and `third_party.repos`.
-- GUI stack (`qt_gui`/`rqt`/`rviz`) and OpenCV demo-only packages are skipped intentionally in this flow.

@@ -6,6 +6,7 @@ Arm64 macOS 上で ROS 2 を Homebrew 非依存でビルドするためのリポ
 - Python は `uv` + `pyproject.toml` / `uv.lock` で管理
 - 外部依存は `.repos` マニフェストで git URL + commit hash を固定
 - ローカル prefix (`.local/`) にツールチェーン/依存を配置
+- `OpenCV` / `Qt5` を含む GUI 依存もローカルでソースビルド
 - `env -i` 分離環境でも再現可能なビルドを維持
 
 ## クイックスタート

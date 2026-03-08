@@ -17,4 +17,10 @@ apply_patch_file() {
 
 apply_patch_file "${ROOT_DIR}/patches/ros2_console_bridge_vendor.patch"
 apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_sdkroot.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_disable_meshlod.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_disable_pugixml_consumers.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_xcrun.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_patch_idempotent.patch"
+apply_patch_file "${ROOT_DIR}/patches/ros2_qt_gui_cpp_optional_bindings.patch"
 apply_patch_file "${ROOT_DIR}/patches/ros_visualization_rqt_bag.patch"

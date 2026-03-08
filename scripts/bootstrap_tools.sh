@@ -16,7 +16,8 @@ CMAKE_BUILD_DIR="${ROOT_DIR}/.build/cmake"
 uv run python "${ROOT_DIR}/scripts/check_repos_pinned.py" "${ROOT_DIR}/third_party.repos"
 uv run python "${ROOT_DIR}/scripts/sync_git_repos.py" \
   --manifest "${ROOT_DIR}/third_party.repos" \
-  --root "${THIRD_PARTY_SRC_DIR}"
+  --root "${THIRD_PARTY_SRC_DIR}" \
+  --force-clean
 
 if [[ -x "${CMAKE_BIN}" ]]; then
   "${CMAKE_BIN}" --version
