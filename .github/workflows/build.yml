@@ -2,7 +2,7 @@ name: Isolated Build
 
 on:
   push:
-    branches: ["master", "chore/arm64-macos-fresh-start"]
+    branches: ["master"]
   pull_request:
     branches: ["master"]
   workflow_dispatch:
