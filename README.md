@@ -45,6 +45,8 @@ source scripts/activate_env.sh
 source install/setup.bash
 ```
 
+`scripts/activate_env.sh` also sets Python-related `colcon` defaults (when unset), so downstream workspaces inherit the same CMake Python settings used to build this ROS 2 install.
+
 ## 5. Run demo nodes
 Terminal A:
 
@@ -63,3 +65,11 @@ ros2 run demo_nodes_cpp talker
 ```
 
 Success condition: Terminal A prints `I heard: [Hello World: N]`.
+
+## 6. Build a custom workspace
+```bash
+source /path/to/ros2_m1_native/scripts/activate_env.sh
+source /path/to/ros2_m1_native/install/setup.bash
+cd /path/to/your_workspace
+uv run colcon build
+```

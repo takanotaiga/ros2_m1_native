@@ -59,6 +59,30 @@ export PKG_CONFIG_PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/lib/pkgconfig:${ROS2_LOCAL
 export COLCON_EXTENSION_BLOCKLIST="${COLCON_EXTENSION_BLOCKLIST:-colcon_core.event_handler.desktop_notification}"
 export PYTHONNOUSERSITE=1
 
+ROS2_M1_NATIVE_PYTHON_EXECUTABLE="${ROOT_DIR}/.venv/bin/python"
+if [[ -x "${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" ]]; then
+  export ROS2_M1_NATIVE_PYTHON_EXECUTABLE
+  export COLCON_PYTHON_EXECUTABLE="${COLCON_PYTHON_EXECUTABLE:-${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}}"
+
+  ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
+  ROS2_M1_NATIVE_PYTHON_LIBRARY="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import pathlib, sysconfig; print(pathlib.Path(sysconfig.get_config_var("LIBDIR")) / sysconfig.get_config_var("LDLIBRARY"))')"
+  export ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR
+  export ROS2_M1_NATIVE_PYTHON_LIBRARY
+
+  COLCON_DEFAULTS_DIR="${ROOT_DIR}/.local/colcon"
+  mkdir -p "${COLCON_DEFAULTS_DIR}"
+  export ROS2_M1_NATIVE_COLCON_DEFAULTS_FILE="${COLCON_DEFAULTS_DIR}/defaults.yaml"
+  cat > "${ROS2_M1_NATIVE_COLCON_DEFAULTS_FILE}" <<EOF
+build:
+  cmake-args:
+    - -DPYTHON_EXECUTABLE=${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}
+    - -DPython3_EXECUTABLE=${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}
+    - -DPYTHON_INCLUDE_DIR=${ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR}
+    - -DPYTHON_LIBRARY=${ROS2_M1_NATIVE_PYTHON_LIBRARY}
+EOF
+  export COLCON_DEFAULTS_FILE="${COLCON_DEFAULTS_FILE:-${ROS2_M1_NATIVE_COLCON_DEFAULTS_FILE}}"
+fi
+
 if [[ "${PATH}" == *"/opt/homebrew"* ]] || [[ "${PATH}" == *"/usr/local/Homebrew"* ]]; then
   echo "ERROR: Homebrew path leakage detected in PATH." >&2
   return 1
