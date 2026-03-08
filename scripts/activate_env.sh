@@ -16,7 +16,17 @@ unset HOMEBREW_PREFIX
 unset HOMEBREW_CELLAR
 unset HOMEBREW_REPOSITORY
 
-export PATH="${ROOT_DIR}/.local/tools/cmake/bin:${ROOT_DIR}/.venv/bin:${HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+UV_BIN_DIR=""
+if command -v uv >/dev/null 2>&1; then
+  UV_BIN_DIR="$(cd "$(dirname "$(command -v uv)")" && pwd)"
+fi
+
+BASE_PATH="${ROOT_DIR}/.local/tools/cmake/bin:${ROOT_DIR}/.venv/bin:${HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+if [[ -n "${UV_BIN_DIR}" ]]; then
+  BASE_PATH="${UV_BIN_DIR}:${BASE_PATH}"
+fi
+
+export PATH="${BASE_PATH}"
 export PATH="${ROS2_LOCAL_DEPS_PREFIX}/bin:${PATH}"
 export PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/bin:${PATH}"
 if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
