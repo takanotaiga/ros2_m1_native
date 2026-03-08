@@ -1,35 +1,65 @@
 # ros2_m1_native
 
-Arm64 macOS 上で ROS 2 を Homebrew 非依存でビルドするためのリポジトリです。
+This is the shortest path to build Homebrew-independent ROS 2 on Arm64 macOS and run:
+- `ros2 run demo_nodes_cpp talker`
+- `ros2 run demo_nodes_py listener`
 
-## 方針
-- Python は `uv` + `pyproject.toml` / `uv.lock` で管理
-- 外部依存は `.repos` マニフェストで git URL + commit hash を固定
-- ローカル prefix (`.local/`) にツールチェーン/依存を配置
-- `OpenCV` / `Qt5` を含む GUI 依存もローカルでソースビルド
-- `env -i` 分離環境でも再現可能なビルドを維持
+## Prerequisites
+- Apple Silicon macOS (arm64)
+- `git`
+- Xcode Command Line Tools
+- `uv` (installed under `~/.local/bin/uv`)
 
-## クイックスタート
-1. `xcode-select --install` で Command Line Tools を用意
-2. `uv` をインストール（`~/.local/bin/uv` 想定）
-3. 初回ロック生成:
-   - `./scripts/bootstrap_python.sh`
-   - `./scripts/generate_ros2_lock.sh`
-4. 分離ビルド:
-   - `./scripts/run_isolated_build.sh`
+## 1. Install required tools
+```bash
+xcode-select --install
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-## 反復ビルド
-- 既存 build を再利用する場合:
-  - `CLEAN_BUILD=0 ./scripts/run_isolated_build.sh`
+Open a new shell, or add `uv` to `PATH`:
 
-## 主要ファイル
-- `ros2.lock.repos`: ROS ソース固定マニフェスト
-- `third_party.repos`: 非ROS依存固定マニフェスト
-- `scripts/run_isolated_build.sh`: 分離環境ビルドのエントリ
-- `scripts/build_local.sh`: 実際の colcon ビルド実行
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
-## CI
-- `.github/workflows/build.yml` で
-  - lock 検証
-  - macOS 分離ビルド
-  を実行します。
+## 2. Clone this repository
+```bash
+git clone <YOUR_REPO_URL> ros2_m1_native
+cd ros2_m1_native
+```
+
+## 3. Build ROS 2 (isolated environment)
+```bash
+./scripts/run_isolated_build.sh
+```
+
+For incremental rebuilds (no clean build):
+
+```bash
+CLEAN_BUILD=0 ./scripts/run_isolated_build.sh
+```
+
+## 4. Load runtime environment
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+```
+
+## 5. Run demo nodes
+Terminal A:
+
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+ros2 run demo_nodes_py listener
+```
+
+Terminal B:
+
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+ros2 run demo_nodes_cpp talker
+```
+
+Success condition: Terminal A prints `I heard: [Hello World: N]`.
