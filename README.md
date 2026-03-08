@@ -1,26 +1,75 @@
-## Alternative Project
-https://pixi.sh/dev/tutorials/ros2/#create-a-pixi-project
+# ros2_m1_native
 
-## Supported Platforms
-- macOS 14.2.1 (23C71)
-- M1 Max MacBook Pro
+This is the shortest path to build Homebrew-independent ROS 2 on Arm64 macOS and run:
+- `ros2 run demo_nodes_cpp talker`
+- `ros2 run demo_nodes_py listener`
 
-## install guide
-- [ros2_m1_native/install_guide.md](./install_guide.md)
+## Prerequisites
+- Apple Silicon macOS (arm64)
+- `git`
+- Xcode Command Line Tools
+- `uv` (installed under `~/.local/bin/uv`)
 
-## Roadmap
+## 1. Install required tools
+```bash
+xcode-select --install
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-✅ = Merged and checked
+Open a new shell, or add `uv` to `PATH`:
 
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
-| status | package | note |
-| -- | -- | -- |
-| ✅ | TF2 |  |
-| ✅ | launch |  |
-| ✅ | demo node |  |
-| ✅ | rosbag2 |  |
-| ✅ | ros2cli |  |
-| ✅ | fastDDS |  |
-| ✅ | rclcpp |  |
-| ✅ | rclpy |  |
-| ✅ | rviz2 |  |
+## 2. Clone this repository
+```bash
+git clone <YOUR_REPO_URL> ros2_m1_native
+cd ros2_m1_native
+```
+
+## 3. Build ROS 2 (isolated environment)
+```bash
+./scripts/run_isolated_build.sh
+```
+
+For incremental rebuilds (no clean build):
+
+```bash
+CLEAN_BUILD=0 ./scripts/run_isolated_build.sh
+```
+
+## 4. Load runtime environment
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+```
+
+`scripts/activate_env.sh` also sets Python-related `colcon` defaults (when unset), so downstream workspaces inherit the same CMake Python settings used to build this ROS 2 install.
+
+## 5. Run demo nodes
+Terminal A:
+
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+ros2 run demo_nodes_py listener
+```
+
+Terminal B:
+
+```bash
+source scripts/activate_env.sh
+source install/setup.bash
+ros2 run demo_nodes_cpp talker
+```
+
+Success condition: Terminal A prints `I heard: [Hello World: N]`.
+
+## 6. Build a custom workspace
+```bash
+source /path/to/ros2_m1_native/scripts/activate_env.sh
+source /path/to/ros2_m1_native/install/setup.bash
+cd /path/to/your_workspace
+uv run colcon build
+```

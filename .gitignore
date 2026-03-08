@@ -2,5 +2,11 @@
 /install/
 /log/
 /src/
+/.venv/
+/.deps/
+/.build/
+/.local/
+/ros2_m1_native.egg-info/
+__pycache__/
 
 .DS_Store

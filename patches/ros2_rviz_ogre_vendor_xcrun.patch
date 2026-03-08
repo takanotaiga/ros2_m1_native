@@ -1,0 +1,48 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ src/ros2/rviz/rviz_ogre_vendor/CMakeLists.txt
+@@ -209,7 +209,8 @@ macro(build_ogre)
+      ${Patch_EXECUTABLE} -p1 -N -l < ${CMAKE_CURRENT_SOURCE_DIR}/pragma-patch.diff &&
+      ${Patch_EXECUTABLE} -p1 -N < ${CMAKE_CURRENT_SOURCE_DIR}/relocatable.patch &&
+      ${CMAKE_COMMAND} -E rename CMake/FeatureSummary.cmake CMake/OgreFeatureSummary.cmake &&
+-      ${Patch_EXECUTABLE} -p1 -N < ${CMAKE_CURRENT_SOURCE_DIR}/C4267.patch
++      ${Patch_EXECUTABLE} -p1 -N < ${CMAKE_CURRENT_SOURCE_DIR}/C4267.patch &&
++      ${Patch_EXECUTABLE} -p1 -N < ${CMAKE_CURRENT_SOURCE_DIR}/xcrun-sysroot.patch
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/FindFreetype.cmake ${CMAKE_CURRENT_BINARY_DIR}/ogre-v1.12.10-prefix/src/ogre-v1.12.10/CMake/Packages/FindFreetype.cmake
+  )
+diff --git a/xcrun-sysroot.patch b/xcrun-sysroot.patch
+new file mode 100644
+index 00000000..47ee34f2
+--- /dev/null
++++ src/ros2/rviz/rviz_ogre_vendor/xcrun-sysroot.patch
+@@ -0,0 +1,29 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index d1f8e72f5..70876ff30 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -272,7 +272,7 @@ elseif (APPLE AND NOT APPLE_IOS)
++ 
++   set(XCODE_ATTRIBUTE_SDKROOT macosx)
++   if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
++-    execute_process(COMMAND xcodebuild -version -sdk "${XCODE_ATTRIBUTE_SDKROOT}" Path | head -n 1 OUTPUT_VARIABLE CMAKE_OSX_SYSROOT)
+++    execute_process(COMMAND xcrun --sdk "${XCODE_ATTRIBUTE_SDKROOT}" --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT)
++     string(REGEX REPLACE "(\r?\n)+$" "" CMAKE_OSX_SYSROOT "${CMAKE_OSX_SYSROOT}")
++   else()
++     set(CMAKE_OSX_SYSROOT macosx)
++diff --git a/OgreMain/CMakeLists.txt b/OgreMain/CMakeLists.txt
++index 6358e2eb9..a0cbca9c6 100644
++--- a/OgreMain/CMakeLists.txt
+++++ b/OgreMain/CMakeLists.txt
++@@ -195,6 +195,11 @@ if (WINDOWS_STORE OR WINDOWS_PHONE)
++ 	set_target_properties(OgreMain PROPERTIES VS_WINRT_COMPONENT "true")
++ endif ()
++ 
+++if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+++  set(COMPILER_HAS_HIDDEN_VISIBILITY ON CACHE INTERNAL "" FORCE)
+++  set(COMPILER_HAS_HIDDEN_INLINE_VISIBILITY ON CACHE INTERNAL "" FORCE)
+++endif()
+++
++ generate_export_header(OgreMain 
++     EXPORT_MACRO_NAME _OgreExport
++     NO_EXPORT_MACRO_NAME _OgrePrivate

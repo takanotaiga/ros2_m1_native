@@ -1,0 +1,49 @@
+repositories:
+  kitware/cmake:
+    type: git
+    url: https://github.com/Kitware/CMake.git
+    version: 9c4a0a9ff09735b847bbbc38caf6da7f6c7238f2
+  opencv/opencv:
+    type: git
+    url: https://github.com/opencv/opencv.git
+    version: 71d3237a093b60a27601c20e9ee6c3e52154e8b1
+  qt/qtbase:
+    type: git
+    url: https://github.com/qt/qtbase.git
+    version: 40143c189b7c1bf3c2058b77d00ea5c4e3be8b28
+  qt/qtsvg:
+    type: git
+    url: https://github.com/qt/qtsvg.git
+    version: 52d3788c7b0116ea3db232dccca5f1e3f1e229ac
+  leethomason/tinyxml2:
+    type: git
+    url: https://github.com/leethomason/tinyxml2.git
+    version: 321ea883b7190d4e85cae5512a12e5eaa8f8731f
+  libeigen/eigen:
+    type: git
+    url: https://gitlab.com/libeigen/eigen.git
+    version: 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+  chriskohlhoff/asio:
+    type: git
+    url: https://github.com/chriskohlhoff/asio.git
+    version: 147f7225a96d45a2807a64e443177f621844e51c
+  bulletphysics/bullet3:
+    type: git
+    url: https://github.com/bulletphysics/bullet3.git
+    version: 2c204c49e56ed15ec5fcfa71d199ab6d6570b3f5
+  assimp/assimp:
+    type: git
+    url: https://github.com/assimp/assimp.git
+    version: 80799bdbf90ce626475635815ee18537718a05b1
+  ogrecave/ogre:
+    type: git
+    url: https://github.com/OGRECave/ogre.git
+    version: 93d7eb5282d31b956f008a53e837bbb820b34454
+  freetype/freetype:
+    type: git
+    url: https://github.com/freetype/freetype.git
+    version: 42608f77f20749dd6ddc9e0536788eaad70ea4b5
+  madler/zlib:
+    type: git
+    url: https://github.com/madler/zlib.git
+    version: cacf7f1d4e3d44d871b605da3b647f07d718623f
