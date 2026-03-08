@@ -6,10 +6,16 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
+HOST_ARCH="$(uname -m)"
 THIRD_PARTY_SRC_DIR="${ROOT_DIR}/.deps/third_party"
 CMAKE_BIN="${ROOT_DIR}/.local/tools/cmake/bin/cmake"
 NATIVE_PREFIX="${ROOT_DIR}/.local/deps"
 QT_PREFIX="${NATIVE_PREFIX}/qt5"
+
+if [[ "${HOST_ARCH}" != "arm64" && "${HOST_ARCH}" != "x86_64" ]]; then
+  echo "ERROR: unsupported host architecture: ${HOST_ARCH}" >&2
+  exit 1
+fi
 
 uv run python "${ROOT_DIR}/scripts/sync_git_repos.py" \
   --manifest "${ROOT_DIR}/third_party.repos" \
@@ -133,9 +139,9 @@ if [[ ! -x "${QT_QMAKE}" ]]; then
   mkdir -p "${QTBASE_BUILD_DIR}" "${QT_PREFIX}"
   pushd "${QTBASE_BUILD_DIR}" >/dev/null
   MACOSX_DEPLOYMENT_TARGET=11.0 \
-  CFLAGS="-arch arm64 -isysroot ${SDKROOT}" \
-  CXXFLAGS="-arch arm64 -isysroot ${SDKROOT}" \
-  LDFLAGS="-arch arm64 -isysroot ${SDKROOT}" \
+  CFLAGS="-arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
+  CXXFLAGS="-arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
+  LDFLAGS="-arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
   "${QTBASE_SRC_DIR}/configure" \
     -platform macx-clang \
     -opengl desktop \
@@ -151,7 +157,7 @@ if [[ ! -x "${QT_QMAKE}" ]]; then
     -qt-zlib \
     -qt-libpng \
     -qt-libjpeg \
-    QMAKE_APPLE_DEVICE_ARCHS=arm64 \
+    QMAKE_APPLE_DEVICE_ARCHS="${HOST_ARCH}" \
     QMAKE_MACOSX_DEPLOYMENT_TARGET=11.0 \
     QMAKE_MAC_SDK=macosx \
     "QMAKE_INCDIR_OPENGL=${SDKROOT}/System/Library/Frameworks/OpenGL.framework/Headers" \
