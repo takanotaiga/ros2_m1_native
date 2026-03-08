@@ -1,33 +1,44 @@
-name: Build
+name: Isolated Build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master", "chore/arm64-macos-fresh-start"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-latest
+  validate-locks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install dependencies
-        run: |
-          brew install python@3.10
-          pip3.10 install -U catkin_pkg colcon-common-extensions vcstool numpy netifaces lark==1.1.1
+      - uses: actions/checkout@v4
 
-      - name: Build ROS 2 on macOS
-        run: |
-          export PATH=$(brew --prefix)/opt/python@3.10/libexec/bin:$PATH
-          mkdir src
-          vcs import src < ros2.repos
-          colcon build --symlink-install --cmake-args -DBUILD_TESTING=OFF -DTHIRDPARTY=FORCE \
-            -DPYTHON_EXECUTABLE=$(which python3.10)
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
 
-      - name: ros2 doctor
-        run: |
-          export PATH=$(brew --prefix)/opt/python@3.10/libexec/bin:$PATH
-          source install/setup.zsh
-          ros2 doctor
+      - name: Sync Python env
+        run: ./scripts/bootstrap_python.sh
+
+      - name: Verify pinned manifests
+        run: uv run python scripts/check_repos_pinned.py ros2.lock.repos third_party.repos
+
+  build-macos-isolated:
+    runs-on: macos-14
+    timeout-minutes: 360
+    needs: validate-locks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Run isolated build
+        run: ./scripts/run_isolated_build.sh
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-build-log
+          path: .build/isolated_build.log

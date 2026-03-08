@@ -1,0 +1,21 @@
+repositories:
+  kitware/cmake:
+    type: git
+    url: https://github.com/Kitware/CMake.git
+    version: 9c4a0a9ff09735b847bbbc38caf6da7f6c7238f2
+  leethomason/tinyxml2:
+    type: git
+    url: https://github.com/leethomason/tinyxml2.git
+    version: 321ea883b7190d4e85cae5512a12e5eaa8f8731f
+  libeigen/eigen:
+    type: git
+    url: https://gitlab.com/libeigen/eigen.git
+    version: 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+  chriskohlhoff/asio:
+    type: git
+    url: https://github.com/chriskohlhoff/asio.git
+    version: 147f7225a96d45a2807a64e443177f621844e51c
+  bulletphysics/bullet3:
+    type: git
+    url: https://github.com/bulletphysics/bullet3.git
+    version: 2c204c49e56ed15ec5fcfa71d199ab6d6570b3f5

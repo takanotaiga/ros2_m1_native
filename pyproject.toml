@@ -1,0 +1,27 @@
+[project]
+name = "ros2-m1-native"
+version = "0.1.0"
+description = "Reproducible ROS 2 build tooling for Arm64 macOS"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "argcomplete>=3.3,<4",
+  "catkin-pkg>=1.0,<2",
+  "colcon-common-extensions>=0.3,<1",
+  "empy==3.3.4",
+  "lark==1.1.1",
+  "netifaces>=0.11,<1",
+  "numpy>=1.26,<3",
+  "psutil>=5.9,<7",
+  "pyyaml>=6.0,<7",
+  "rosdep>=0.26,<1",
+  "rosdistro>=1.0,<2",
+  "setuptools==69.2.0",
+  "vcstool>=0.3.0,<1",
+]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+default-groups = []
