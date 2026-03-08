@@ -1,12 +1,27 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  echo "ERROR: source this file instead of executing it." >&2
-  echo "Usage: source scripts/activate_env.sh" >&2
-  exit 1
+# Detect whether this file is sourced (bash/zsh) and resolve script path.
+SCRIPT_SOURCE="${0}"
+if [[ -n "${BASH_VERSION:-}" ]]; then
+  SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+  if [[ "${SCRIPT_SOURCE}" == "${0}" ]]; then
+    echo "ERROR: source this file instead of executing it." >&2
+    echo "Usage: source scripts/activate_env.sh" >&2
+    exit 1
+  fi
+elif [[ -n "${ZSH_VERSION:-}" ]]; then
+  SCRIPT_SOURCE="${0}"
+  case "${ZSH_EVAL_CONTEXT:-}" in
+    *:file) ;;
+    *)
+      echo "ERROR: source this file instead of executing it." >&2
+      echo "Usage: source scripts/activate_env.sh" >&2
+      exit 1
+      ;;
+  esac
 fi
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")/.." && pwd)"
 
 export ROS2_M1_NATIVE_ROOT="${ROOT_DIR}"
 export ROS2_LOCAL_DEPS_PREFIX="${ROOT_DIR}/.local/deps"
