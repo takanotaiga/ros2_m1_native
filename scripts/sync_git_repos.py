@@ -69,7 +69,6 @@ def sync_repo(
                 "--origin",
                 "origin",
                 "--no-checkout",
-                "--filter=blob:none",
                 repo_url,
                 str(repo_path),
             ]
