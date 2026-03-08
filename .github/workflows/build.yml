@@ -24,7 +24,16 @@ jobs:
         run: uv run python scripts/check_repos_pinned.py ros2.lock.repos third_party.repos
 
   build-macos-isolated:
-    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - macos-14
+          - macos-15
+          - macos-26
+          - macos-15-intel
+          - macos-26-intel
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
     needs: validate-locks
     steps:
@@ -40,5 +49,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: isolated-build-log
+          name: isolated-build-log-${{ matrix.runner }}
           path: .build/isolated_build.log
