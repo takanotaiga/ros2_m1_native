@@ -37,6 +37,7 @@ fi
 
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
 PYTHON_EXECUTABLE="${ROOT_DIR}/.venv/bin/python"
+PYTHON_ROOT_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sys; print(sys.base_prefix)')"
 PYTHON_INCLUDE_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
 PYTHON_LIBRARY="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig, pathlib; print(pathlib.Path(sysconfig.get_config_var("LIBDIR")) / sysconfig.get_config_var("LDLIBRARY"))')"
 BUILD_CMD=(
@@ -59,6 +60,9 @@ BUILD_CMD+=(
   -DCMAKE_BUILD_TYPE=Release
   "-DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}"
   "-DPython3_EXECUTABLE=${PYTHON_EXECUTABLE}"
+  "-DPython3_ROOT_DIR=${PYTHON_ROOT_DIR}"
+  "-DPython3_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}"
+  "-DPython3_LIBRARY=${PYTHON_LIBRARY}"
   "-DPYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}"
   "-DPYTHON_LIBRARY=${PYTHON_LIBRARY}"
   -Wno-dev

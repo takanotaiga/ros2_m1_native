@@ -11,6 +11,11 @@ if [[ -z "${UV_BIN_PATH}" ]]; then
   exit 1
 fi
 UV_BIN_DIR="$(cd "$(dirname "${UV_BIN_PATH}")" && pwd)"
+BUILD_DIR="${ROOT_DIR}/.build"
+ISOLATED_BUILD_LOG="${BUILD_DIR}/isolated_build.log"
+
+mkdir -p "${BUILD_DIR}"
+rm -f "${ISOLATED_BUILD_LOG}"
 
 env -i \
   HOME="${HOME}" \
@@ -19,4 +24,5 @@ env -i \
   TMPDIR="${TMPDIR:-/tmp}" \
   CLEAN_BUILD="${CLEAN_BUILD:-1}" \
   PATH="${HOME}/.local/bin:${UV_BIN_DIR}:/usr/bin:/bin:/usr/sbin:/sbin" \
-  /bin/bash -c "cd '${ROOT_DIR}' && ./scripts/build_local.sh"
+  /bin/bash -c "cd '${ROOT_DIR}' && ./scripts/build_local.sh" \
+  2>&1 | tee "${ISOLATED_BUILD_LOG}"
