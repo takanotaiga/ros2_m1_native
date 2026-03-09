@@ -127,6 +127,12 @@ def main() -> int:
     parser.add_argument("--manifest", required=True, type=Path, help="Path to .repos manifest")
     parser.add_argument("--root", required=True, type=Path, help="Destination root directory")
     parser.add_argument(
+        "--repo",
+        action="append",
+        default=[],
+        help="Sync only the specified repository from the manifest (repeatable).",
+    )
+    parser.add_argument(
         "--allow-non-pinned",
         action="store_true",
         help="Allow branch/tag versions (used only for bootstrapping lock generation).",
@@ -150,7 +156,16 @@ def main() -> int:
 
     args.root.mkdir(parents=True, exist_ok=True)
 
-    for name in sorted(repositories.keys()):
+    if args.repo:
+        missing = sorted(set(args.repo) - set(repositories.keys()))
+        if missing:
+            missing_text = ", ".join(missing)
+            raise RuntimeError(f"manifest does not contain requested repositories: {missing_text}")
+        repo_names = sorted(set(args.repo))
+    else:
+        repo_names = sorted(repositories.keys())
+
+    for name in repo_names:
         spec = repositories[name]
         if not isinstance(spec, dict):
             raise RuntimeError(f"{name}: manifest entry must be a mapping")

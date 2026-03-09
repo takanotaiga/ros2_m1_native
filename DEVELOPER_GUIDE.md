@@ -17,10 +17,16 @@ This document defines hash pinning rules and update procedures for source depend
 
 ## 3. ROS 2 hash update flow
 1. Edit target repositories in `ros2.repos`.
-2. Regenerate the lock file:
+2. Regenerate the lock file (default: add only repos that are missing from `ros2.lock.repos`):
 
 ```bash
 ./scripts/generate_ros2_lock.sh
+```
+
+To refresh all lock entries from `ros2.repos`:
+
+```bash
+./scripts/generate_ros2_lock.sh --all
 ```
 
 3. Validate pinning:
