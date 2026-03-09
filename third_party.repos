@@ -27,6 +27,14 @@ repositories:
     type: git
     url: https://github.com/chriskohlhoff/asio.git
     version: 147f7225a96d45a2807a64e443177f621844e51c
+  tencent/rapidjson:
+    type: git
+    url: https://github.com/Tencent/rapidjson.git
+    version: f54b0e47a08782a6131cc3d60f94d038fa6e0a51
+  nlohmann/json:
+    type: git
+    url: https://github.com/nlohmann/json.git
+    version: 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03
   bulletphysics/bullet3:
     type: git
     url: https://github.com/bulletphysics/bullet3.git

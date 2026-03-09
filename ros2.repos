@@ -39,6 +39,10 @@ repositories:
     type: git
     url: https://github.com/eclipse-cyclonedds/cyclonedds.git
     version: releases/0.10.x
+  foxglove/foxglove-sdk:
+    type: git
+    url: https://github.com/foxglove/foxglove-sdk.git
+    version: ros-v3.2.4
   ignition/ignition_cmake2_vendor:
     type: git
     url: https://github.com/ignition-release/ignition_cmake2_vendor.git
@@ -127,6 +131,10 @@ repositories:
     type: git
     url: https://github.com/ros/class_loader.git
     version: humble
+  facontidavide/rosx_introspection:
+    type: git
+    url: https://github.com/facontidavide/rosx_introspection.git
+    version: master
   ros2/ament_cmake_ros:
     type: git
     url: https://github.com/ros2/ament_cmake_ros.git

@@ -39,6 +39,14 @@ repositories:
     type: git
     url: https://github.com/eclipse-cyclonedds/cyclonedds.git
     version: 76360fb73907ce3dba397e89090a7a4ecf4f1246
+  facontidavide/rosx_introspection:
+    type: git
+    url: https://github.com/facontidavide/rosx_introspection.git
+    version: cbbe9156fa0fa6c184917353dd4f52f21ead73e6
+  foxglove/foxglove-sdk:
+    type: git
+    url: https://github.com/foxglove/foxglove-sdk.git
+    version: d41509186e3a0579c1b82926f9738c4631ab5c20
   ignition/ignition_cmake2_vendor:
     type: git
     url: https://github.com/ignition-release/ignition_cmake2_vendor.git

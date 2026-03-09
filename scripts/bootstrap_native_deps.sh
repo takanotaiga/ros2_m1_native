@@ -29,6 +29,9 @@ TINYXML2_BUILD_DIR="${ROOT_DIR}/.build/tinyxml2"
 EIGEN_SRC_DIR="${THIRD_PARTY_SRC_DIR}/libeigen/eigen"
 EIGEN_BUILD_DIR="${ROOT_DIR}/.build/eigen"
 ASIO_SRC_DIR="${THIRD_PARTY_SRC_DIR}/chriskohlhoff/asio"
+RAPIDJSON_SRC_DIR="${THIRD_PARTY_SRC_DIR}/tencent/rapidjson"
+NLOHMANN_JSON_SRC_DIR="${THIRD_PARTY_SRC_DIR}/nlohmann/json"
+NLOHMANN_JSON_BUILD_DIR="${ROOT_DIR}/.build/nlohmann_json"
 BULLET_SRC_DIR="${THIRD_PARTY_SRC_DIR}/bulletphysics/bullet3"
 BULLET_BUILD_DIR="${ROOT_DIR}/.build/bullet3"
 OPENCV_SRC_DIR="${THIRD_PARTY_SRC_DIR}/opencv/opencv"
@@ -88,6 +91,23 @@ if [[ ! -f "${NATIVE_PREFIX}/include/asio.hpp" ]]; then
   rm -rf "${NATIVE_PREFIX}/include/asio" "${NATIVE_PREFIX}/include/asio.hpp"
   cp -R "${ASIO_SRC_DIR}/asio/include/asio" "${NATIVE_PREFIX}/include/"
   cp "${ASIO_SRC_DIR}/asio/include/asio.hpp" "${NATIVE_PREFIX}/include/"
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/include/rapidjson/document.h" ]]; then
+  mkdir -p "${NATIVE_PREFIX}/include"
+  rm -rf "${NATIVE_PREFIX}/include/rapidjson"
+  cp -R "${RAPIDJSON_SRC_DIR}/include/rapidjson" "${NATIVE_PREFIX}/include/"
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/include/nlohmann/json.hpp" ]]; then
+  rm -rf "${NLOHMANN_JSON_BUILD_DIR}"
+  "${CMAKE_BIN}" -S "${NLOHMANN_JSON_SRC_DIR}" -B "${NLOHMANN_JSON_BUILD_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${NATIVE_PREFIX}" \
+    -DJSON_BuildTests=OFF \
+    -DJSON_Install=ON
+  "${CMAKE_BIN}" --build "${NLOHMANN_JSON_BUILD_DIR}" --parallel "${JOBS}"
+  "${CMAKE_BIN}" --install "${NLOHMANN_JSON_BUILD_DIR}"
 fi
 
 if [[ ! -f "${NATIVE_PREFIX}/lib/libBulletDynamics.dylib" ]]; then
