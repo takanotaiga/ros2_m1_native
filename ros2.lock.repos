@@ -35,6 +35,10 @@ repositories:
     type: git
     url: https://github.com/eProsima/foonathan_memory_vendor.git
     version: 347cb67581e51273a612780eb256a3c134c10bae
+  eclipse-cyclonedds/cyclonedds:
+    type: git
+    url: https://github.com/eclipse-cyclonedds/cyclonedds.git
+    version: 76360fb73907ce3dba397e89090a7a4ecf4f1246
   ignition/ignition_cmake2_vendor:
     type: git
     url: https://github.com/ignition-release/ignition_cmake2_vendor.git
@@ -279,6 +283,10 @@ repositories:
     type: git
     url: https://github.com/ros2/rmw_connextdds.git
     version: a61b6cef39002033d8075976b5857f3eab27cac9
+  ros2/rmw_cyclonedds:
+    type: git
+    url: https://github.com/ros2/rmw_cyclonedds.git
+    version: 7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f
   ros2/rmw_dds_common:
     type: git
     url: https://github.com/ros2/rmw_dds_common.git
