@@ -27,6 +27,10 @@ repositories:
     type: git
     url: https://github.com/chriskohlhoff/asio.git
     version: 147f7225a96d45a2807a64e443177f621844e51c
+  boostorg/boost:
+    type: git
+    url: https://github.com/boostorg/boost.git
+    version: 65c1319bb92fe7a9a4abd588eff5818d9c2bccf9
   tencent/rapidjson:
     type: git
     url: https://github.com/Tencent/rapidjson.git
@@ -55,3 +59,15 @@ repositories:
     type: git
     url: https://github.com/madler/zlib.git
     version: cacf7f1d4e3d44d871b605da3b647f07d718623f
+  pointcloudlibrary/pcl:
+    type: git
+    url: https://github.com/PointCloudLibrary/pcl.git
+    version: e8ed4be802f7d0b1acff2f8b01d7c5f381190e05
+  flann-lib/flann:
+    type: git
+    url: https://github.com/flann-lib/flann.git
+    version: c50f296b0b27e14667d272b37acc63f949b305c4
+  lz4/lz4:
+    type: git
+    url: https://github.com/lz4/lz4.git
+    version: ebb370ca83af193212df4dcbadcc5d87bc0de2f0

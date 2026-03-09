@@ -25,3 +25,4 @@ apply_patch_file "${ROOT_DIR}/patches/ros2_rviz_ogre_vendor_patch_idempotent.pat
 apply_patch_file "${ROOT_DIR}/patches/ros2_qt_gui_cpp_optional_bindings.patch"
 apply_patch_file "${ROOT_DIR}/patches/ros_visualization_rqt_bag.patch"
 apply_patch_file "${ROOT_DIR}/patches/foxglove_bridge_macos_sdk.patch"
+apply_patch_file "${ROOT_DIR}/patches/perception_pcl_minimal_pcl_components.patch"
