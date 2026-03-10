@@ -1,4 +1,28 @@
 repositories:
+  BehaviorTree/BehaviorTree.CPP:
+    type: git
+    url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
+    version: 669392a6fafd7ac2f47fad88f581c6913c47ae89
+  OctoMap/octomap_msgs:
+    type: git
+    url: https://github.com/OctoMap/octomap_msgs.git
+    version: 50eece2bfc2f3163b2fb70b9157356e12d375dff
+  PickNikRobotics/RSL:
+    type: git
+    url: https://github.com/PickNikRobotics/RSL.git
+    version: 72c5f95342aa9d6559d4b4da3ce2e491a3b974a3
+  PickNikRobotics/cpp_polyfills:
+    type: git
+    url: https://github.com/PickNikRobotics/cpp_polyfills.git
+    version: dc1a7b212465975d5795b5105bd9fd3c8cc73114
+  PickNikRobotics/generate_parameter_library:
+    type: git
+    url: https://github.com/PickNikRobotics/generate_parameter_library.git
+    version: 0455e7c2c2249b66f9c76ef6dba8c8e9ad526cfd
+  SteveMacenski/slam_toolbox:
+    type: git
+    url: https://github.com/SteveMacenski/slam_toolbox.git
+    version: 51a99767b3e2ed4076ae5763ff14b69343ffd884
   ament/ament_cmake:
     type: git
     url: https://github.com/ament/ament_cmake.git
@@ -23,6 +47,10 @@ repositories:
     type: git
     url: https://github.com/ament/uncrustify_vendor.git
     version: ec8f8b4d03483671e8ea2b3039f1015f92b0ef89
+  cra-ros-pkg/robot_localization:
+    type: git
+    url: https://github.com/cra-ros-pkg/robot_localization.git
+    version: 8696ee5a9e4f959fcaae37835dcf2ed12ead581b
   eProsima/Fast-CDR:
     type: git
     url: https://github.com/eProsima/Fast-CDR.git
@@ -55,6 +83,30 @@ repositories:
     type: git
     url: https://github.com/ignition-release/ignition_math6_vendor.git
     version: 177e74c31767e60c5bd8167f9ec66017b8e8020b
+  moveit/geometric_shapes:
+    type: git
+    url: https://github.com/moveit/geometric_shapes.git
+    version: cd7a5b7714dbe45b0d56d634c86429b7b5811bd8
+  moveit/moveit2:
+    type: git
+    url: https://github.com/moveit/moveit2.git
+    version: e7004f4b867351cd47f151efbd84693d6bcb15b8
+  moveit/moveit_msgs:
+    type: git
+    url: https://github.com/moveit/moveit_msgs.git
+    version: 99e6898f589d3d6929c6da68e0c3f1057866aca8
+  moveit/moveit_resources:
+    type: git
+    url: https://github.com/moveit/moveit_resources.git
+    version: 45ea3551aa74fd5dc40cc39ef53391425cda0af9
+  moveit/srdfdom:
+    type: git
+    url: https://github.com/moveit/srdfdom.git
+    version: 222b47fa86e81ee3cdb23dc51f08cb152f2af4aa
+  moveit/warehouse_ros:
+    type: git
+    url: https://github.com/ros-planning/warehouse_ros.git
+    version: 340efea14728a44d26ae8db37e5fa9867fb7fd84
   osrf/osrf_pycommon:
     type: git
     url: https://github.com/osrf/osrf_pycommon.git
@@ -63,10 +115,38 @@ repositories:
     type: git
     url: https://github.com/osrf/osrf_testing_tools_cpp.git
     version: ccfe94a685884155cb619896df1e71b8507c5c70
+  ros-controls/control_msgs:
+    type: git
+    url: https://github.com/ros-controls/control_msgs.git
+    version: a2a129654a1f0f4cf3dc7d5dd4065b0370792968
+  ros-controls/control_toolbox:
+    type: git
+    url: https://github.com/ros-controls/control_toolbox.git
+    version: 33efe189ed7b7f585909136a05011862e029678d
+  ros-controls/realtime_tools:
+    type: git
+    url: https://github.com/ros-controls/realtime_tools.git
+    version: c09fae0b667315a3d778f4b3cd5646d5928ffccb
+  ros-controls/ros2_control:
+    type: git
+    url: https://github.com/ros-controls/ros2_control.git
+    version: dbc7dad2f06f4baaefa3b767a58252acb6896296
+  ros-drivers/velodyne:
+    type: git
+    url: https://github.com/ros-drivers/velodyne.git
+    version: 56fc178d2dad4b6d38c6a69aeb2435ff75503e52
+  ros-geographic-info/geographic_info:
+    type: git
+    url: https://github.com/ros-geographic-info/geographic_info.git
+    version: 491eff4860c314b51ebd1b96a1f3042987e8bd94
   ros-perception/image_common:
     type: git
     url: https://github.com/ros-perception/image_common.git
     version: 5e4dd9ed2daae23a6d06ff98e0a5bef19a9314da
+  ros-perception/image_pipeline:
+    type: git
+    url: https://github.com/ros-perception/image_pipeline.git
+    version: 7ed35c9c75dbb0b81c488c8ece24f7d05c7fc6f6
   ros-perception/laser_geometry:
     type: git
     url: https://github.com/ros-perception/laser_geometry.git
@@ -79,10 +159,22 @@ repositories:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
     version: 67a5c2ba4c4de3ca21c5cd495812a01ced3fb69a
+  ros-perception/vision_opencv:
+    type: git
+    url: https://github.com/ros-perception/vision_opencv.git
+    version: 9800f67cea477c44cfb64e349854bcb6a09dc9ce
+  ros-planning/navigation2:
+    type: git
+    url: https://github.com/ros-planning/navigation2.git
+    version: 0412cea6f78bd1b9d041ec427f6b0496518fb83e
   ros-planning/navigation_msgs:
     type: git
     url: https://github.com/ros-planning/navigation_msgs.git
     version: 1d8683359734a2c829b5cdb6b5a4e015bbbcb6a5
+  ros-planning/random_numbers:
+    type: git
+    url: https://github.com/ros-planning/random_numbers.git
+    version: 79d6089c8ab211c9148f203588a61d9c91c8c613
   ros-tooling/keyboard_handler:
     type: git
     url: https://github.com/ros-tooling/keyboard_handler.git
@@ -163,10 +255,34 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/tango_icons_vendor.git
     version: 6829ad2201c6b42973edcfc9f5755b8b9f5b67ff
+  ros/angles:
+    type: git
+    url: https://github.com/ros/angles.git
+    version: a96224f9ab3ac51fe8fd981c1e1554528dc4345a
+  ros/bond_core:
+    type: git
+    url: https://github.com/ros/bond_core.git
+    version: 0043f2d67e3234750769c712ad9a974a39ac5f50
   ros/class_loader:
     type: git
     url: https://github.com/ros/class_loader.git
     version: b59bce93380b73ac9061fba28e96bba540e2befe
+  ros/diagnostics:
+    type: git
+    url: https://github.com/ros/diagnostics.git
+    version: 14f4ba23d8e415b97a7195d3038b56a2a5640de2
+  ros/eigen_stl_containers:
+    type: git
+    url: https://github.com/ros/eigen_stl_containers.git
+    version: 1f6e7fb78982b168875c5a17cda203d79824ef50
+  ros/filters:
+    type: git
+    url: https://github.com/ros/filters.git
+    version: ef8bad440cb65a54874dbaa8bf39b3acc2c03268
+  ros/joint_state_publisher:
+    type: git
+    url: https://github.com/ros/joint_state_publisher.git
+    version: bbcac1ebfc43f920ed0b5e17d75cdc674c4229e6
   ros/kdl_parser:
     type: git
     url: https://github.com/ros/kdl_parser.git
@@ -199,6 +315,10 @@ repositories:
     type: git
     url: https://github.com/ros/urdfdom_headers.git
     version: d3643d2acd8567c6522ceaf7ded6e3c3755a5244
+  ros/xacro:
+    type: git
+    url: https://github.com/ros/xacro.git
+    version: 1f24172cbe9af4ebd7fcb820d06f071f92fff65b
   ros2/ament_cmake_ros:
     type: git
     url: https://github.com/ros2/ament_cmake_ros.git
@@ -415,3 +535,7 @@ repositories:
     type: git
     url: https://github.com/ros2/yaml_cpp_vendor.git
     version: 77bebe7a90c0bc26df3137f15bad4a9712f9b74e
+  wg-perception/object_recognition_msgs:
+    type: git
+    url: https://github.com/wg-perception/object_recognition_msgs.git
+    version: 19e949778095f35ca1cd3369596409f5a3e22558

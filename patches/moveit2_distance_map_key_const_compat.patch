@@ -1,0 +1,13 @@
+diff --git a/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h b/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h
+index 319273fd6..236bceba5 100644
+--- a/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h
++++ src/moveit/moveit2/moveit_core/collision_detection/include/moveit/collision_detection/collision_common.h
+@@ -270,7 +270,7 @@ struct DistanceResultsData  // NOLINT(readability-identifier-naming) - suppress
+ };
+ 
+ /** \brief Mapping between the names of the collision objects and the DistanceResultData. */
+-using DistanceMap = std::map<const std::pair<std::string, std::string>, std::vector<DistanceResultsData> >;
++using DistanceMap = std::map<std::pair<std::string, std::string>, std::vector<DistanceResultsData> >;
+ 
+ /** \brief Result of a distance request. */
+ struct DistanceResult

@@ -1,0 +1,27 @@
+diff --git a/include/xtensor/xutils.hpp b/include/xtensor/xutils.hpp
+index f51b39f..a5e2066 100644
+--- a/include/xtensor/xutils.hpp
++++ b/include/xtensor/xutils.hpp
+@@ -74,6 +74,9 @@ namespace xt
+     template <std::size_t... I>
+     bool resize_container(fixed_shape<I...>& a, std::size_t size);
+ 
++    template <class T, std::size_t N, class A, bool Init>
++    class svector;
++
+     template <class X, class C>
+     struct rebind_container;
+ 
+@@ -842,6 +845,12 @@ namespace xt
+         using type = C<X, N>;
+     };
+ #endif
++
++    template <class X, class T, std::size_t N>
++    struct rebind_container<X, svector<T, N, std::allocator<T>, true>>
++    {
++        using type = svector<X, N, std::allocator<X>, true>;
++    };
+ 
+     /********************
+      * get_strides_type *

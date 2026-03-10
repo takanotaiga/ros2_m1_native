@@ -1,0 +1,53 @@
+diff --git a/velodyne_pointcloud/CMakeLists.txt b/velodyne_pointcloud/CMakeLists.txt
+--- src/ros-drivers/velodyne/velodyne_pointcloud/CMakeLists.txt
++++ src/ros-drivers/velodyne/velodyne_pointcloud/CMakeLists.txt
+@@ -30,9 +30,27 @@ find_package(yaml-cpp REQUIRED)
+ # so use that where appropriate.
+ if(TARGET yaml-cpp::yaml-cpp)
+   set(YAML_CPP_TARGET "yaml-cpp::yaml-cpp")
++elseif(TARGET yaml-cpp)
++  set(YAML_CPP_TARGET yaml-cpp)
+ else()
+   set(YAML_CPP_TARGET ${YAML_CPP_LIBRARIES})
+ endif()
++if(NOT YAML_CPP_TARGET)
++  set(YAML_CPP_TARGET ${yaml_cpp_vendor_LIBRARIES})
++endif()
++set(YAML_CPP_INCLUDE_DIR_HINTS
++  ${yaml_cpp_vendor_INCLUDE_DIRS}
++  ${YAML_CPP_INCLUDE_DIR}
++)
++set(YAML_CPP_VENDOR_INCLUDE_DIR "${yaml_cpp_vendor_DIR}/../../../opt/yaml_cpp_vendor/include")
++if(EXISTS "${YAML_CPP_VENDOR_INCLUDE_DIR}/yaml-cpp/yaml.h")
++  list(APPEND YAML_CPP_INCLUDE_DIR_HINTS "${YAML_CPP_VENDOR_INCLUDE_DIR}")
++endif()
++set(YAML_CPP_VENDOR_LIBRARY "${yaml_cpp_vendor_DIR}/../../../opt/yaml_cpp_vendor/lib/libyaml-cpp.dylib")
++if(EXISTS "${YAML_CPP_VENDOR_LIBRARY}")
++  list(APPEND YAML_CPP_TARGET "${YAML_CPP_VENDOR_LIBRARY}")
++endif()
++list(REMOVE_DUPLICATES YAML_CPP_INCLUDE_DIR_HINTS)
+ 
+ # Work around broken find module in AlmaLinux/RHEL eigen3-devel from PowerTools repo
+ find_package(Eigen3 QUIET NO_MODULE)
+@@ -45,7 +63,9 @@ add_library(velodyne_rawdata SHARED
+   src/lib/calibration.cpp)
+ target_include_directories(velodyne_rawdata PUBLIC
+   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
++  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
++  ${YAML_CPP_INCLUDE_DIR_HINTS}
++)
+ target_link_libraries(velodyne_rawdata PUBLIC
+   angles::angles
+   Eigen3::Eigen
+@@ -79,7 +99,9 @@ add_library(transform SHARED
+   src/conversions/transform.cpp)
+ target_include_directories(transform PUBLIC
+   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
++  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
++  ${YAML_CPP_INCLUDE_DIR_HINTS}
++)
+ target_link_libraries(transform PUBLIC
+   diagnostic_updater::diagnostic_updater
+   Eigen3::Eigen

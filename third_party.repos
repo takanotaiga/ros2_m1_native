@@ -23,6 +23,34 @@ repositories:
     type: git
     url: https://gitlab.com/libeigen/eigen.git
     version: 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+  ceres-solver/ceres-solver:
+    type: git
+    url: https://github.com/ceres-solver/ceres-solver.git
+    version: f68321e7de8929fbcdb95dd42877531e64f72f66
+  geographiclib/geographiclib:
+    type: git
+    url: https://github.com/geographiclib/geographiclib.git
+    version: 920702bc36ea13c384686556f25fb6369141a8e1
+  xtensor-stack/xtl:
+    type: git
+    url: https://github.com/xtensor-stack/xtl.git
+    version: e0f00666d90086bb245ae73abb6123d0e2c1b30b
+  xtensor-stack/xsimd:
+    type: git
+    url: https://github.com/xtensor-stack/xsimd.git
+    version: 31298c883bda0f3dfcf44170f45be242deb78f1a
+  xtensor-stack/xtensor:
+    type: git
+    url: https://github.com/xtensor-stack/xtensor.git
+    version: 9e8662ddad7fcd1a96969b96bf8955e59cf44978
+  jlblancoc/nanoflann:
+    type: git
+    url: https://github.com/jlblancoc/nanoflann.git
+    version: 8a6c5dfe62390e4ada924ee860d2abb400d54e27
+  ompl/ompl:
+    type: git
+    url: https://github.com/ompl/ompl.git
+    version: 76bf8c9ce20fada3f3f11cd97d2ff286cf2b2978
   chriskohlhoff/asio:
     type: git
     url: https://github.com/chriskohlhoff/asio.git
@@ -39,6 +67,14 @@ repositories:
     type: git
     url: https://github.com/nlohmann/json.git
     version: 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03
+  fmtlib/fmt:
+    type: git
+    url: https://github.com/fmtlib/fmt.git
+    version: e69e5f977d458f2650bb346dadf2ad30c5320281
+  pantor/ruckig:
+    type: git
+    url: https://github.com/pantor/ruckig.git
+    version: a553c63261db0261d81cff77bb94c17910948351
   bulletphysics/bullet3:
     type: git
     url: https://github.com/bulletphysics/bullet3.git
@@ -67,7 +103,35 @@ repositories:
     type: git
     url: https://github.com/flann-lib/flann.git
     version: c50f296b0b27e14667d272b37acc63f949b305c4
+  qhull/qhull:
+    type: git
+    url: https://github.com/qhull/qhull.git
+    version: 613debeaea72ee66626dace9ba1a2eff11b5d37d
+  OctoMap/octomap:
+    type: git
+    url: https://github.com/OctoMap/octomap.git
+    version: d417c181868be79931ec94fd1a407c323e9f0fd3
+  danfis/libccd:
+    type: git
+    url: https://github.com/danfis/libccd.git
+    version: 7931e764a19ef6b21b443376c699bbc9c6d4fba8
+  flexible-collision-library/fcl:
+    type: git
+    url: https://github.com/flexible-collision-library/fcl.git
+    version: 97455a46de121fb7c0f749e21a58b1b54cd2c6be
   lz4/lz4:
     type: git
     url: https://github.com/lz4/lz4.git
     version: ebb370ca83af193212df4dcbadcc5d87bc0de2f0
+  Perlmint/glew-cmake:
+    type: git
+    url: https://github.com/Perlmint/glew-cmake.git
+    version: a11525a157901007ea54dadefc364db1d001141a
+  freeglut/freeglut:
+    type: git
+    url: https://github.com/freeglut/freeglut.git
+    version: 3db1649ce1f5e42f1338b51e3fa14849be547d5d
+  GraphicsMagick/graphicsmagick:
+    type: git
+    url: https://github.com/GraphicsMagick/graphicsmagick.git
+    version: 2f1f89d099b40bfa434f8b7dc59c71efd0d8522c

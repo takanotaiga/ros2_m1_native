@@ -1,0 +1,150 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b0e2bbe..8006572 100644
+--- src/SteveMacenski/slam_toolbox/CMakeLists.txt
++++ src/SteveMacenski/slam_toolbox/CMakeLists.txt
+@@ -75,11 +75,7 @@ set(libraries
+ 
+ find_package(PkgConfig REQUIRED)
+ find_package(Eigen3 REQUIRED)
+-find_package(CHOLMOD REQUIRED)
+-find_package(CSparse REQUIRED)
+-find_package(G2O REQUIRED)
+-find_package(LAPACK REQUIRED)
+-find_package(Ceres REQUIRED COMPONENTS SuiteSparse)
++find_package(Ceres REQUIRED)
+ 
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+ add_definitions(-DQT_NO_KEYWORDS)
+@@ -87,9 +83,7 @@ find_package(Boost REQUIRED system serialization filesystem thread)
+ 
+ include_directories(include lib/karto_sdk/include
+                             ${EIGEN3_INCLUDE_DIRS}
+-                            ${CHOLMOD_INCLUDE_DIR}
+                             ${Boost_INCLUDE_DIRS}
+-                            ${TBB_INCLUDE_DIRS}
+                             ${CERES_INCLUDES}
+ )
+ 
+@@ -133,7 +127,6 @@ add_library(ceres_solver_plugin solvers/ceres_solver.cpp)
+ ament_target_dependencies(ceres_solver_plugin ${dependencies})
+ target_link_libraries(ceres_solver_plugin ${CERES_LIBRARIES}
+                                           ${Boost_LIBRARIES}
+-                                          ${TBB_LIBRARIES}
+                                           kartoSlamToolbox
+ )
+ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+diff --git a/lib/karto_sdk/CMakeLists.txt b/lib/karto_sdk/CMakeLists.txt
+index cd07927..e49a4a5 100644
+--- src/SteveMacenski/slam_toolbox/lib/karto_sdk/CMakeLists.txt
++++ src/SteveMacenski/slam_toolbox/lib/karto_sdk/CMakeLists.txt
+@@ -6,13 +6,12 @@ if(NOT CMAKE_CXX_STANDARD)
+ endif()
+ set(CMAKE_BUILD_TYPE Release) #None, Debug, Release, RelWithDebInfo, MinSizeRel
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
++set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/" "${CMAKE_SOURCE_DIR}/CMake/")
+ 
+ find_package(ament_cmake REQUIRED)
+ find_package(rclcpp REQUIRED)
+ find_package(Eigen3 REQUIRED)
+ find_package(Boost REQUIRED system serialization filesystem thread)
+-find_package(TBB REQUIRED NO_CMAKE_PACKAGE_REGISTRY)
+ 
+ set(dependencies
+   rclcpp
+@@ -21,15 +20,14 @@ set(dependencies
+ include_directories(include ${EIGEN3_INCLUDE_DIRS} 
+                             ${Boost_INCLUDE_DIR}
+                             ${BOOST_INCLUDE_DIRS}
+-                            ${TBB_INCLUDE_DIRS}
+ )
+ 
+ add_definitions(${EIGEN3_DEFINITIONS})
+ 
+-include_directories(include ${EIGEN3_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
++include_directories(include ${EIGEN3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+ add_library(kartoSlamToolbox SHARED src/Karto.cpp src/Mapper.cpp)
+ ament_target_dependencies(kartoSlamToolbox ${dependencies})
+-target_link_libraries(kartoSlamToolbox ${Boost_LIBRARIES} TBB::tbb)
++target_link_libraries(kartoSlamToolbox ${Boost_LIBRARIES})
+ 
+ install(DIRECTORY include/
+ 	DESTINATION include/
+diff --git a/lib/karto_sdk/include/karto_sdk/Mapper.h b/lib/karto_sdk/include/karto_sdk/Mapper.h
+index 1372377..cdfa1b0 100644
+--- src/SteveMacenski/slam_toolbox/lib/karto_sdk/include/karto_sdk/Mapper.h
++++ src/SteveMacenski/slam_toolbox/lib/karto_sdk/include/karto_sdk/Mapper.h
+@@ -27,10 +27,6 @@
+ #include <utility>
+ #include <string>
+ 
+-#include "tbb/parallel_for_each.h"
+-#include "tbb/parallel_for.h"
+-#include "tbb/blocked_range.h"
+-
+ #include "Eigen/Core"
+ #include "rclcpp/rclcpp.hpp"
+ #include "Karto.h"  // NOLINT
+diff --git a/lib/karto_sdk/src/Mapper.cpp b/lib/karto_sdk/src/Mapper.cpp
+index e969404..b044732 100644
+--- src/SteveMacenski/slam_toolbox/lib/karto_sdk/src/Mapper.cpp
++++ src/SteveMacenski/slam_toolbox/lib/karto_sdk/src/Mapper.cpp
+@@ -770,7 +770,7 @@ kt_double ScanMatcher::CorrelateScan(
+   m_nAngles = nAngles;
+   m_searchAngleResolution = searchAngleResolution;
+   m_doPenalize = doPenalize;
+-  tbb::parallel_for_each(m_yPoses, (*this));
++  std::for_each(m_yPoses.begin(), m_yPoses.end(), (*this));
+ 
+   // find value of best response (in [0; 1])
+   kt_double bestResponse = -1;
+diff --git a/solvers/ceres_solver.cpp b/solvers/ceres_solver.cpp
+index 1828ed8..032f32a 100644
+--- src/SteveMacenski/slam_toolbox/solvers/ceres_solver.cpp
++++ src/SteveMacenski/slam_toolbox/solvers/ceres_solver.cpp
+@@ -30,7 +30,7 @@ void CeresSolver::Configure(rclcpp::Node::SharedPtr node)
+   std::string solver_type, preconditioner_type, dogleg_type,
+     trust_strategy, loss_fn, mode;
+   solver_type = node->declare_parameter("ceres_linear_solver",
+-      std::string("SPARSE_NORMAL_CHOLESKY"));
++      std::string("DENSE_QR"));
+   preconditioner_type = node->declare_parameter("ceres_preconditioner",
+       std::string("JACOBI"));
+   dogleg_type = node->declare_parameter("ceres_dogleg_type",
+@@ -60,9 +60,13 @@ void CeresSolver::Configure(rclcpp::Node::SharedPtr node)
+     loss_function_ = new ceres::CauchyLoss(0.7);
+   }
+ 
+-  // choose linear solver default CHOL
+-  options_.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
+-  if (solver_type == "SPARSE_SCHUR") {
++  // choose linear solver default dense QR for broad platform support
++  options_.linear_solver_type = ceres::DENSE_QR;
++  if (solver_type == "SPARSE_NORMAL_CHOLESKY") {
++    RCLCPP_INFO(node_->get_logger(),
++      "CeresSolver: Using SPARSE_NORMAL_CHOLESKY solver.");
++    options_.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
++  } else if (solver_type == "SPARSE_SCHUR") {
+     RCLCPP_INFO(node_->get_logger(),
+       "CeresSolver: Using SPARSE_SCHUR solver.");
+     options_.linear_solver_type = ceres::SPARSE_SCHUR;
+@@ -74,6 +78,10 @@ void CeresSolver::Configure(rclcpp::Node::SharedPtr node)
+     RCLCPP_INFO(node_->get_logger(),
+       "CeresSolver: Using CGNR solver.");
+     options_.linear_solver_type = ceres::CGNR;
++  } else if (solver_type == "DENSE_QR") {
++    RCLCPP_INFO(node_->get_logger(),
++      "CeresSolver: Using DENSE_QR solver.");
++    options_.linear_solver_type = ceres::DENSE_QR;
+   }
+ 
+   // choose preconditioner default Jacobi
+@@ -119,7 +127,7 @@ void CeresSolver::Configure(rclcpp::Node::SharedPtr node)
+   options_.gradient_tolerance = 1e-6;
+   options_.parameter_tolerance = 1e-3;
+ 
+-  options_.sparse_linear_algebra_library_type = ceres::SUITE_SPARSE;
++  options_.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
+   options_.max_num_consecutive_invalid_steps = 3;
+   options_.max_consecutive_nonmonotonic_steps =
+     options_.max_num_consecutive_invalid_steps;

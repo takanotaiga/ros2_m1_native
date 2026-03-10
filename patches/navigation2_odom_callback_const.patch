@@ -1,0 +1,810 @@
+diff --git a/nav2_amcl/include/nav2_amcl/amcl_node.hpp b/nav2_amcl/include/nav2_amcl/amcl_node.hpp
+index 030a85f3..97ce40ca 100644
+--- a/nav2_amcl/include/nav2_amcl/amcl_node.hpp
++++ src/ros-planning/navigation2/nav2_amcl/include/nav2_amcl/amcl_node.hpp
+@@ -125,7 +125,7 @@ protected:
+    * @brief Get new map from ROS topic to localize in
+    * @param msg Map message
+    */
+-  void mapReceived(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
++  void mapReceived(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
+   /*
+    * @brief Handle a new map message
+    * @param msg Map message
+@@ -191,7 +191,7 @@ protected:
+   /*
+    * @brief Handle with an initial pose estimate is received
+    */
+-  void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
++  void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
+   /*
+    * @brief Handle when a laser scan is received
+    */
+@@ -339,7 +339,7 @@ protected:
+   /*
+    * @brief Handle a new pose estimate callback
+    */
+-  void handleInitialPose(geometry_msgs::msg::PoseWithCovarianceStamped & msg);
++  void handleInitialPose(const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
+   bool init_pose_received_on_inactive{false};
+   bool initial_pose_is_known_{false};
+   bool set_initial_pose_{false};
+diff --git a/nav2_amcl/src/amcl_node.cpp b/nav2_amcl/src/amcl_node.cpp
+index 0fa2f94c..3050e07f 100644
+--- a/nav2_amcl/src/amcl_node.cpp
++++ src/ros-planning/navigation2/nav2_amcl/src/amcl_node.cpp
+@@ -518,7 +518,7 @@ AmclNode::nomotionUpdateCallback(
+ }
+ 
+ void
+-AmclNode::initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
++AmclNode::initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
+ {
+   std::lock_guard<std::recursive_mutex> cfl(mutex_);
+ 
+@@ -550,7 +550,7 @@ AmclNode::initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::Sha
+ }
+ 
+ void
+-AmclNode::handleInitialPose(geometry_msgs::msg::PoseWithCovarianceStamped & msg)
++AmclNode::handleInitialPose(const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
+ {
+   std::lock_guard<std::recursive_mutex> cfl(mutex_);
+   // In case the client sent us a pose estimate in the past, integrate the
+@@ -1377,7 +1377,7 @@ AmclNode::dynamicParametersCallback(
+ }
+ 
+ void
+-AmclNode::mapReceived(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
++AmclNode::mapReceived(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+ {
+   RCLCPP_DEBUG(get_logger(), "AmclNode: A new map was received.");
+   if (!nav2_util::validateMsg(*msg)) {
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/controller_selector_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/controller_selector_node.hpp
+index 968750a0..9b78dedc 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/controller_selector_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/controller_selector_node.hpp
+@@ -81,7 +81,7 @@ private:
+    *
+    * @param msg the message with the id of the controller_selector
+    */
+-  void callbackControllerSelect(const std_msgs::msg::String::SharedPtr msg);
++  void callbackControllerSelect(const std_msgs::msg::String::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr controller_selector_sub_;
+ 
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/goal_checker_selector_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/goal_checker_selector_node.hpp
+index 11f0d0f4..c6b47b41 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/goal_checker_selector_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/goal_checker_selector_node.hpp
+@@ -81,7 +81,7 @@ private:
+    *
+    * @param msg the message with the id of the goal_checker_selector
+    */
+-  void callbackGoalCheckerSelect(const std_msgs::msg::String::SharedPtr msg);
++  void callbackGoalCheckerSelect(const std_msgs::msg::String::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_checker_selector_sub_;
+ 
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/planner_selector_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/planner_selector_node.hpp
+index 3aa9e657..854b1120 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/planner_selector_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/planner_selector_node.hpp
+@@ -81,7 +81,7 @@ private:
+    *
+    * @param msg the message with the id of the planner_selector
+    */
+-  void callbackPlannerSelect(const std_msgs::msg::String::SharedPtr msg);
++  void callbackPlannerSelect(const std_msgs::msg::String::ConstSharedPtr msg);
+ 
+ 
+   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr planner_selector_sub_;
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/progress_checker_selector_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/progress_checker_selector_node.hpp
+index e996bda5..316a2a4f 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/progress_checker_selector_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/progress_checker_selector_node.hpp
+@@ -80,7 +80,7 @@ private:
+    *
+    * @param msg the message with the id of the progress_checker_selector
+    */
+-  void callbackProgressCheckerSelect(const std_msgs::msg::String::SharedPtr msg);
++  void callbackProgressCheckerSelect(const std_msgs::msg::String::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr progress_checker_selector_sub_;
+ 
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/smoother_selector_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/smoother_selector_node.hpp
+index f9bb293d..246c9c5a 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/smoother_selector_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/smoother_selector_node.hpp
+@@ -81,7 +81,7 @@ private:
+    *
+    * @param msg the message with the id of the smoother_selector
+    */
+-  void callbackSmootherSelect(const std_msgs::msg::String::SharedPtr msg);
++  void callbackSmootherSelect(const std_msgs::msg::String::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr smoother_selector_sub_;
+ 
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.hpp
+index 37a53b41..6df09de6 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.hpp
+@@ -67,7 +67,7 @@ private:
+    * @brief Callback function for battery topic
+    * @param msg Shared pointer to sensor_msgs::msg::BatteryState message
+    */
+-  void batteryCallback(sensor_msgs::msg::BatteryState::SharedPtr msg);
++  void batteryCallback(sensor_msgs::msg::BatteryState::ConstSharedPtr msg);
+ 
+   rclcpp::CallbackGroup::SharedPtr callback_group_;
+   rclcpp::executors::SingleThreadedExecutor callback_group_executor_;
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_low_condition.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_low_condition.hpp
+index 5c4753cf..0fa36536 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_low_condition.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_battery_low_condition.hpp
+@@ -71,7 +71,7 @@ private:
+    * @brief Callback function for battery topic
+    * @param msg Shared pointer to sensor_msgs::msg::BatteryState message
+    */
+-  void batteryCallback(sensor_msgs::msg::BatteryState::SharedPtr msg);
++  void batteryCallback(sensor_msgs::msg::BatteryState::ConstSharedPtr msg);
+ 
+   rclcpp::Node::SharedPtr node_;
+   rclcpp::CallbackGroup::SharedPtr callback_group_;
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp
+index 565f2611..a8fce19e 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp
+@@ -53,7 +53,7 @@ public:
+    * @brief Callback function for odom topic
+    * @param msg Shared pointer to nav_msgs::msg::Odometry::SharedPtr message
+    */
+-  void onOdomReceived(const typename nav_msgs::msg::Odometry::SharedPtr msg);
++  void onOdomReceived(const typename nav_msgs::msg::Odometry::ConstSharedPtr msg);
+ 
+   /**
+    * @brief The main override required by a BT action
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/decorator/goal_updater_node.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/plugins/decorator/goal_updater_node.hpp
+index 49dfbc1a..68bd4598 100644
+--- a/nav2_behavior_tree/include/nav2_behavior_tree/plugins/decorator/goal_updater_node.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/plugins/decorator/goal_updater_node.hpp
+@@ -69,7 +69,7 @@ private:
+    * @brief Callback function for goal update topic
+    * @param msg Shared pointer to geometry_msgs::msg::PoseStamped message
+    */
+-  void callback_updated_goal(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
++  void callback_updated_goal(const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
+ 
+diff --git a/nav2_behavior_tree/plugins/action/controller_selector_node.cpp b/nav2_behavior_tree/plugins/action/controller_selector_node.cpp
+index 7d77adbe..2830cedc 100644
+--- a/nav2_behavior_tree/plugins/action/controller_selector_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/action/controller_selector_node.cpp
+@@ -77,7 +77,7 @@ BT::NodeStatus ControllerSelector::tick()
+ }
+ 
+ void
+-ControllerSelector::callbackControllerSelect(const std_msgs::msg::String::SharedPtr msg)
++ControllerSelector::callbackControllerSelect(const std_msgs::msg::String::ConstSharedPtr msg)
+ {
+   last_selected_controller_ = msg->data;
+ }
+diff --git a/nav2_behavior_tree/plugins/action/goal_checker_selector_node.cpp b/nav2_behavior_tree/plugins/action/goal_checker_selector_node.cpp
+index 1a2e9c70..ce1b8e2e 100644
+--- a/nav2_behavior_tree/plugins/action/goal_checker_selector_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/action/goal_checker_selector_node.cpp
+@@ -68,7 +68,7 @@ BT::NodeStatus GoalCheckerSelector::tick()
+ }
+ 
+ void
+-GoalCheckerSelector::callbackGoalCheckerSelect(const std_msgs::msg::String::SharedPtr msg)
++GoalCheckerSelector::callbackGoalCheckerSelect(const std_msgs::msg::String::ConstSharedPtr msg)
+ {
+   last_selected_goal_checker_ = msg->data;
+ }
+diff --git a/nav2_behavior_tree/plugins/action/planner_selector_node.cpp b/nav2_behavior_tree/plugins/action/planner_selector_node.cpp
+index ccb85184..31d1e325 100644
+--- a/nav2_behavior_tree/plugins/action/planner_selector_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/action/planner_selector_node.cpp
+@@ -77,7 +77,7 @@ BT::NodeStatus PlannerSelector::tick()
+ }
+ 
+ void
+-PlannerSelector::callbackPlannerSelect(const std_msgs::msg::String::SharedPtr msg)
++PlannerSelector::callbackPlannerSelect(const std_msgs::msg::String::ConstSharedPtr msg)
+ {
+   last_selected_planner_ = msg->data;
+ }
+diff --git a/nav2_behavior_tree/plugins/action/progress_checker_selector_node.cpp b/nav2_behavior_tree/plugins/action/progress_checker_selector_node.cpp
+index e8c418dd..c7fa29c4 100644
+--- a/nav2_behavior_tree/plugins/action/progress_checker_selector_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/action/progress_checker_selector_node.cpp
+@@ -67,7 +67,7 @@ BT::NodeStatus ProgressCheckerSelector::tick()
+ }
+ 
+ void
+-ProgressCheckerSelector::callbackProgressCheckerSelect(const std_msgs::msg::String::SharedPtr msg)
++ProgressCheckerSelector::callbackProgressCheckerSelect(const std_msgs::msg::String::ConstSharedPtr msg)
+ {
+   last_selected_progress_checker_ = msg->data;
+ }
+diff --git a/nav2_behavior_tree/plugins/action/smoother_selector_node.cpp b/nav2_behavior_tree/plugins/action/smoother_selector_node.cpp
+index 0a84062e..9751341c 100644
+--- a/nav2_behavior_tree/plugins/action/smoother_selector_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/action/smoother_selector_node.cpp
+@@ -78,7 +78,7 @@ BT::NodeStatus SmootherSelector::tick()
+ }
+ 
+ void
+-SmootherSelector::callbackSmootherSelect(const std_msgs::msg::String::SharedPtr msg)
++SmootherSelector::callbackSmootherSelect(const std_msgs::msg::String::ConstSharedPtr msg)
+ {
+   last_selected_smoother_ = msg->data;
+ }
+diff --git a/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.cpp b/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.cpp
+index c9c05f68..7ddec66e 100644
+--- a/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/condition/is_battery_charging_condition.cpp
+@@ -51,7 +51,7 @@ BT::NodeStatus IsBatteryChargingCondition::tick()
+   return BT::NodeStatus::FAILURE;
+ }
+ 
+-void IsBatteryChargingCondition::batteryCallback(sensor_msgs::msg::BatteryState::SharedPtr msg)
++void IsBatteryChargingCondition::batteryCallback(sensor_msgs::msg::BatteryState::ConstSharedPtr msg)
+ {
+   is_battery_charging_ =
+     (msg->power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_CHARGING);
+diff --git a/nav2_behavior_tree/plugins/condition/is_battery_low_condition.cpp b/nav2_behavior_tree/plugins/condition/is_battery_low_condition.cpp
+index b8630261..bb64b205 100644
+--- a/nav2_behavior_tree/plugins/condition/is_battery_low_condition.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/condition/is_battery_low_condition.cpp
+@@ -56,7 +56,7 @@ BT::NodeStatus IsBatteryLowCondition::tick()
+   return BT::NodeStatus::FAILURE;
+ }
+ 
+-void IsBatteryLowCondition::batteryCallback(sensor_msgs::msg::BatteryState::SharedPtr msg)
++void IsBatteryLowCondition::batteryCallback(sensor_msgs::msg::BatteryState::ConstSharedPtr msg)
+ {
+   if (is_voltage_) {
+     is_battery_low_ = msg->voltage <= min_battery_;
+diff --git a/nav2_behavior_tree/plugins/condition/is_stuck_condition.cpp b/nav2_behavior_tree/plugins/condition/is_stuck_condition.cpp
+index a898dec9..e101a5cf 100644
+--- a/nav2_behavior_tree/plugins/condition/is_stuck_condition.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/condition/is_stuck_condition.cpp
+@@ -58,7 +58,7 @@ IsStuckCondition::~IsStuckCondition()
+   callback_group_executor_thread.join();
+ }
+ 
+-void IsStuckCondition::onOdomReceived(const typename nav_msgs::msg::Odometry::SharedPtr msg)
++void IsStuckCondition::onOdomReceived(const typename nav_msgs::msg::Odometry::ConstSharedPtr msg)
+ {
+   RCLCPP_INFO_ONCE(node_->get_logger(), "Got odometry");
+ 
+diff --git a/nav2_behavior_tree/plugins/decorator/goal_updater_node.cpp b/nav2_behavior_tree/plugins/decorator/goal_updater_node.cpp
+index 1f7226e6..9740a9c2 100644
+--- a/nav2_behavior_tree/plugins/decorator/goal_updater_node.cpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/plugins/decorator/goal_updater_node.cpp
+@@ -77,7 +77,7 @@ inline BT::NodeStatus GoalUpdater::tick()
+ }
+ 
+ void
+-GoalUpdater::callback_updated_goal(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
++GoalUpdater::callback_updated_goal(const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg)
+ {
+   last_goal_received_ = *msg;
+ }
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_2d_ros.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_2d_ros.hpp
+index 599f7c6f..36c82329 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_2d_ros.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_2d_ros.hpp
+@@ -311,7 +311,7 @@ public:
+    * layered_costmap_->setFootprint().  Also saves the unpadded
+    * footprint, which is available from
+    * getUnpaddedRobotFootprint(). */
+-  void setRobotFootprintPolygon(const geometry_msgs::msg::Polygon::SharedPtr footprint);
++  void setRobotFootprintPolygon(const geometry_msgs::msg::Polygon::ConstSharedPtr footprint);
+ 
+   std::shared_ptr<tf2_ros::Buffer> getTfBuffer() {return tf_buffer_;}
+ 
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/binary_filter.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/binary_filter.hpp
+index e36507ef..184ded94 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/binary_filter.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/binary_filter.hpp
+@@ -66,7 +66,7 @@ public:
+    * @brief Initialize the filter and subscribe to the info topic
+    */
+   void initializeFilter(
+-    const std::string & filter_info_topic);
++    const std::string & filter_info_topic) override;
+ 
+   /**
+    * @brief Process the keepout layer at the current pose / bounds / grid
+@@ -74,12 +74,12 @@ public:
+   void process(
+     nav2_costmap_2d::Costmap2D & master_grid,
+     int min_i, int min_j, int max_i, int max_j,
+-    const geometry_msgs::msg::Pose2D & pose);
++    const geometry_msgs::msg::Pose2D & pose) override;
+ 
+   /**
+    * @brief Reset the costmap filter / topic / info
+    */
+-  void resetFilter();
++  void resetFilter() override;
+ 
+   /**
+    * @brief If this filter is active
+@@ -90,11 +90,11 @@ private:
+   /**
+    * @brief Callback for the filter information
+    */
+-  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg);
++  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg);
+   /**
+    * @brief Callback for the filter mask
+    */
+-  void maskCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
++  void maskCallback(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
+   /**
+    * @brief Changes binary state of filter. Sends a message with new state.
+    * @param state New binary state
+@@ -107,7 +107,7 @@ private:
+ 
+   rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::Bool>::SharedPtr binary_state_pub_;
+ 
+-  nav_msgs::msg::OccupancyGrid::SharedPtr filter_mask_;
++  nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask_;
+ 
+   std::string mask_frame_;  // Frame where mask located in
+   std::string global_frame_;  // Frame of currnet layer (master_grid)
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/keepout_filter.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/keepout_filter.hpp
+index bbc81031..1fb67868 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/keepout_filter.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/keepout_filter.hpp
+@@ -66,7 +66,7 @@ public:
+    * @brief Initialize the filter and subscribe to the info topic
+    */
+   void initializeFilter(
+-    const std::string & filter_info_topic);
++    const std::string & filter_info_topic) override;
+ 
+   /**
+    * @brief Update the bounds of the master costmap by this layer's update dimensions
+@@ -88,12 +88,12 @@ public:
+   void process(
+     nav2_costmap_2d::Costmap2D & master_grid,
+     int min_i, int min_j, int max_i, int max_j,
+-    const geometry_msgs::msg::Pose2D & pose);
++    const geometry_msgs::msg::Pose2D & pose) override;
+ 
+   /**
+    * @brief Reset the costmap filter / topic / info
+    */
+-  void resetFilter();
++  void resetFilter() override;
+ 
+   /**
+    * @brief If this filter is active
+@@ -104,11 +104,11 @@ private:
+   /**
+    * @brief Callback for the filter information
+    */
+-  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg);
++  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg);
+   /**
+    * @brief Callback for the filter mask
+    */
+-  void maskCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
++  void maskCallback(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<nav2_msgs::msg::CostmapFilterInfo>::SharedPtr filter_info_sub_;
+   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mask_sub_;
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/speed_filter.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/speed_filter.hpp
+index 3ad4b9ba..b079e46a 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/speed_filter.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/speed_filter.hpp
+@@ -66,7 +66,7 @@ public:
+    * @brief Initialize the filter and subscribe to the info topic
+    */
+   void initializeFilter(
+-    const std::string & filter_info_topic);
++    const std::string & filter_info_topic) override;
+ 
+   /**
+    * @brief Process the keepout layer at the current pose / bounds / grid
+@@ -74,12 +74,12 @@ public:
+   void process(
+     nav2_costmap_2d::Costmap2D & master_grid,
+     int min_i, int min_j, int max_i, int max_j,
+-    const geometry_msgs::msg::Pose2D & pose);
++    const geometry_msgs::msg::Pose2D & pose) override;
+ 
+   /**
+    * @brief Reset the costmap filter / topic / info
+    */
+-  void resetFilter();
++  void resetFilter() override;
+ 
+   /**
+    * @brief If this filter is active
+@@ -90,18 +90,18 @@ private:
+   /**
+    * @brief Callback for the filter information
+    */
+-  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg);
++  void filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg);
+   /**
+    * @brief Callback for the filter mask
+    */
+-  void maskCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
++  void maskCallback(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
+ 
+   rclcpp::Subscription<nav2_msgs::msg::CostmapFilterInfo>::SharedPtr filter_info_sub_;
+   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mask_sub_;
+ 
+   rclcpp_lifecycle::LifecyclePublisher<nav2_msgs::msg::SpeedLimit>::SharedPtr speed_limit_pub_;
+ 
+-  nav_msgs::msg::OccupancyGrid::SharedPtr filter_mask_;
++  nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask_;
+ 
+   std::string mask_frame_;  // Frame where mask located in
+   std::string global_frame_;  // Frame of currnet layer (master_grid)
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_subscriber.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_subscriber.hpp
+index e4ea7450..491ea5dc 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_subscriber.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_subscriber.hpp
+@@ -63,11 +63,11 @@ public:
+   /**
+    * @brief Callback for the costmap topic
+    */
+-  void costmapCallback(const nav2_msgs::msg::Costmap::SharedPtr msg);
++  void costmapCallback(const nav2_msgs::msg::Costmap::ConstSharedPtr msg);
+ 
+ protected:
+   std::shared_ptr<Costmap2D> costmap_;
+-  nav2_msgs::msg::Costmap::SharedPtr costmap_msg_;
++  nav2_msgs::msg::Costmap::ConstSharedPtr costmap_msg_;
+   std::string topic_name_;
+   bool costmap_received_{false};
+   rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr costmap_sub_;
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/footprint.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/footprint.hpp
+index d9dce06c..2bdda841 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/footprint.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/footprint.hpp
+@@ -81,7 +81,7 @@ geometry_msgs::msg::Polygon toPolygon(std::vector<geometry_msgs::msg::Point> pts
+  * @brief Convert Polygon msg to vector of Points.
+  */
+ std::vector<geometry_msgs::msg::Point> toPointVector(
+-  geometry_msgs::msg::Polygon::SharedPtr polygon);
++  geometry_msgs::msg::Polygon::ConstSharedPtr polygon);
+ 
+ /**
+  * @brief  Given a pose and base footprint, build the oriented footprint of the robot (list of Points)
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/footprint_subscriber.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/footprint_subscriber.hpp
+index d9e9ddb3..b818e49d 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/footprint_subscriber.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/footprint_subscriber.hpp
+@@ -84,13 +84,13 @@ protected:
+   /**
+    * @brief Callback to process new footprint updates.
+    */
+-  void footprint_callback(const geometry_msgs::msg::PolygonStamped::SharedPtr msg);
++  void footprint_callback(const geometry_msgs::msg::PolygonStamped::ConstSharedPtr msg);
+ 
+   tf2_ros::Buffer & tf_;
+   std::string robot_base_frame_;
+   double transform_tolerance_;
+   bool footprint_received_{false};
+-  geometry_msgs::msg::PolygonStamped::SharedPtr footprint_;
++  geometry_msgs::msg::PolygonStamped::ConstSharedPtr footprint_;
+   rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr footprint_sub_;
+ };
+ 
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/range_sensor_layer.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/range_sensor_layer.hpp
+index a4383f14..6c4569ac 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/range_sensor_layer.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/range_sensor_layer.hpp
+@@ -126,7 +126,7 @@ public:
+   /**
+    * @brief Handle an incoming Range message to populate into costmap
+    */
+-  void bufferIncomingRangeMsg(const sensor_msgs::msg::Range::SharedPtr range_message);
++  void bufferIncomingRangeMsg(const sensor_msgs::msg::Range::ConstSharedPtr range_message);
+ 
+ protected:
+   /**
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/static_layer.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/static_layer.hpp
+index 967a6c37..23350667 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/static_layer.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/static_layer.hpp
+@@ -141,7 +141,7 @@ protected:
+    * map along with its size will determine what parts of the costmap's
+    * static map are overwritten.
+    */
+-  void incomingMap(const nav_msgs::msg::OccupancyGrid::SharedPtr new_map);
++  void incomingMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr new_map);
+   /**
+    * @brief Callback to update the costmap's map from the map_server (or SLAM)
+    * with an update in a particular area of the map
+@@ -197,7 +197,7 @@ protected:
+   bool map_received_{false};
+   bool map_received_in_update_bounds_{false};
+   tf2::Duration transform_tolerance_;
+-  nav_msgs::msg::OccupancyGrid::SharedPtr map_buffer_;
++  nav_msgs::msg::OccupancyGrid::ConstSharedPtr map_buffer_;
+   // Dynamic parameters handler
+   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;
+ };
+diff --git a/nav2_costmap_2d/plugins/costmap_filters/binary_filter.cpp b/nav2_costmap_2d/plugins/costmap_filters/binary_filter.cpp
+index b57a27c4..f4256f78 100644
+--- a/nav2_costmap_2d/plugins/costmap_filters/binary_filter.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/plugins/costmap_filters/binary_filter.cpp
+@@ -101,7 +101,7 @@ void BinaryFilter::initializeFilter(
+ }
+ 
+ void BinaryFilter::filterInfoCallback(
+-  const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
++  const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+@@ -145,7 +145,7 @@ void BinaryFilter::filterInfoCallback(
+ }
+ 
+ void BinaryFilter::maskCallback(
+-  const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
++  const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+diff --git a/nav2_costmap_2d/plugins/costmap_filters/keepout_filter.cpp b/nav2_costmap_2d/plugins/costmap_filters/keepout_filter.cpp
+index cd9b76f9..880519ac 100644
+--- a/nav2_costmap_2d/plugins/costmap_filters/keepout_filter.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/plugins/costmap_filters/keepout_filter.cpp
+@@ -77,7 +77,7 @@ void KeepoutFilter::initializeFilter(
+ }
+ 
+ void KeepoutFilter::filterInfoCallback(
+-  const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
++  const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+@@ -121,7 +121,7 @@ void KeepoutFilter::filterInfoCallback(
+ }
+ 
+ void KeepoutFilter::maskCallback(
+-  const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
++  const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+diff --git a/nav2_costmap_2d/plugins/costmap_filters/speed_filter.cpp b/nav2_costmap_2d/plugins/costmap_filters/speed_filter.cpp
+index 5f984a10..013d86d8 100644
+--- a/nav2_costmap_2d/plugins/costmap_filters/speed_filter.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/plugins/costmap_filters/speed_filter.cpp
+@@ -94,7 +94,7 @@ void SpeedFilter::initializeFilter(
+ }
+ 
+ void SpeedFilter::filterInfoCallback(
+-  const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
++  const nav2_msgs::msg::CostmapFilterInfo::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+@@ -152,7 +152,7 @@ void SpeedFilter::filterInfoCallback(
+ }
+ 
+ void SpeedFilter::maskCallback(
+-  const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
++  const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+ {
+   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
+ 
+diff --git a/nav2_costmap_2d/plugins/range_sensor_layer.cpp b/nav2_costmap_2d/plugins/range_sensor_layer.cpp
+index ffbe8a3e..0c86f40c 100644
+--- a/nav2_costmap_2d/plugins/range_sensor_layer.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/plugins/range_sensor_layer.cpp
+@@ -210,7 +210,7 @@ double RangeSensorLayer::sensor_model(double r, double phi, double theta)
+ }
+ 
+ void RangeSensorLayer::bufferIncomingRangeMsg(
+-  const sensor_msgs::msg::Range::SharedPtr range_message)
++  const sensor_msgs::msg::Range::ConstSharedPtr range_message)
+ {
+   range_message_mutex_.lock();
+   range_msgs_buffer_.push_back(*range_message);
+diff --git a/nav2_costmap_2d/plugins/static_layer.cpp b/nav2_costmap_2d/plugins/static_layer.cpp
+index 25a10e3b..2394bb47 100644
+--- a/nav2_costmap_2d/plugins/static_layer.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/plugins/static_layer.cpp
+@@ -278,7 +278,7 @@ StaticLayer::interpretValue(unsigned char value)
+ }
+ 
+ void
+-StaticLayer::incomingMap(const nav_msgs::msg::OccupancyGrid::SharedPtr new_map)
++StaticLayer::incomingMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr new_map)
+ {
+   if (!nav2_util::validateMsg(*new_map)) {
+     RCLCPP_ERROR(logger_, "Received map message is malformed. Rejecting.");
+diff --git a/nav2_costmap_2d/src/costmap_2d_ros.cpp b/nav2_costmap_2d/src/costmap_2d_ros.cpp
+index 08a1c63d..5a8a2a9a 100644
+--- a/nav2_costmap_2d/src/costmap_2d_ros.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/src/costmap_2d_ros.cpp
+@@ -433,7 +433,7 @@ Costmap2DROS::setRobotFootprint(const std::vector<geometry_msgs::msg::Point> & p
+ 
+ void
+ Costmap2DROS::setRobotFootprintPolygon(
+-  const geometry_msgs::msg::Polygon::SharedPtr footprint)
++  const geometry_msgs::msg::Polygon::ConstSharedPtr footprint)
+ {
+   setRobotFootprint(toPointVector(footprint));
+ }
+diff --git a/nav2_costmap_2d/src/costmap_subscriber.cpp b/nav2_costmap_2d/src/costmap_subscriber.cpp
+index d56ac942..d26320a0 100644
+--- a/nav2_costmap_2d/src/costmap_subscriber.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/src/costmap_subscriber.cpp
+@@ -86,7 +86,7 @@ void CostmapSubscriber::toCostmap2D()
+   }
+ }
+ 
+-void CostmapSubscriber::costmapCallback(const nav2_msgs::msg::Costmap::SharedPtr msg)
++void CostmapSubscriber::costmapCallback(const nav2_msgs::msg::Costmap::ConstSharedPtr msg)
+ {
+   std::atomic_store(&costmap_msg_, msg);
+   if (!costmap_received_) {
+diff --git a/nav2_costmap_2d/src/footprint.cpp b/nav2_costmap_2d/src/footprint.cpp
+index 608a494a..42b55117 100644
+--- a/nav2_costmap_2d/src/footprint.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/src/footprint.cpp
+@@ -97,7 +97,7 @@ geometry_msgs::msg::Polygon toPolygon(std::vector<geometry_msgs::msg::Point> pts
+   return polygon;
+ }
+ 
+-std::vector<geometry_msgs::msg::Point> toPointVector(geometry_msgs::msg::Polygon::SharedPtr polygon)
++std::vector<geometry_msgs::msg::Point> toPointVector(geometry_msgs::msg::Polygon::ConstSharedPtr polygon)
+ {
+   std::vector<geometry_msgs::msg::Point> pts;
+   for (unsigned int i = 0; i < polygon->points.size(); i++) {
+diff --git a/nav2_costmap_2d/src/footprint_subscriber.cpp b/nav2_costmap_2d/src/footprint_subscriber.cpp
+index 2c269fa3..01b3b441 100644
+--- a/nav2_costmap_2d/src/footprint_subscriber.cpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/src/footprint_subscriber.cpp
+@@ -106,7 +106,7 @@ FootprintSubscriber::getFootprintInRobotFrame(
+ }
+ 
+ void
+-FootprintSubscriber::footprint_callback(const geometry_msgs::msg::PolygonStamped::SharedPtr msg)
++FootprintSubscriber::footprint_callback(const geometry_msgs::msg::PolygonStamped::ConstSharedPtr msg)
+ {
+   std::atomic_store(&footprint_, msg);
+   if (!footprint_received_) {
+diff --git a/nav2_map_server/src/map_saver/map_saver.cpp b/nav2_map_server/src/map_saver/map_saver.cpp
+index 1517e787..fe307ca1 100644
+--- a/nav2_map_server/src/map_saver/map_saver.cpp
++++ src/ros-planning/navigation2/nav2_map_server/src/map_saver/map_saver.cpp
+@@ -178,11 +178,11 @@ bool MapSaver::saveMapTopicToFile(
+       save_parameters_loc.occupied_thresh = occupied_thresh_default_;
+     }
+ 
+-    std::promise<nav_msgs::msg::OccupancyGrid::SharedPtr> prom;
+-    std::future<nav_msgs::msg::OccupancyGrid::SharedPtr> future_result = prom.get_future();
++    std::promise<nav_msgs::msg::OccupancyGrid::ConstSharedPtr> prom;
++    std::future<nav_msgs::msg::OccupancyGrid::ConstSharedPtr> future_result = prom.get_future();
+     // A callback function that receives map message from subscribed topic
+     auto mapCallback = [&prom](
+-      const nav_msgs::msg::OccupancyGrid::SharedPtr msg) -> void {
++      const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg) -> void {
+         prom.set_value(msg);
+       };
+ 
+@@ -216,7 +216,7 @@ bool MapSaver::saveMapTopicToFile(
+     // map_sub is no more needed
+     map_sub.reset();
+     // Map message received. Saving it to file
+-    nav_msgs::msg::OccupancyGrid::SharedPtr map_msg = future_result.get();
++    nav_msgs::msg::OccupancyGrid::ConstSharedPtr map_msg = future_result.get();
+     if (saveMapToFile(*map_msg, save_parameters_loc)) {
+       RCLCPP_INFO(get_logger(), "Map saved successfully");
+       return true;
+diff --git a/nav2_rviz_plugins/src/nav2_panel.cpp b/nav2_rviz_plugins/src/nav2_panel.cpp
+index b39fe348..95f79e2d 100644
+--- a/nav2_rviz_plugins/src/nav2_panel.cpp
++++ src/ros-planning/navigation2/nav2_rviz_plugins/src/nav2_panel.cpp
+@@ -391,14 +391,14 @@ Nav2Panel::onInitialize()
+     node->create_subscription<nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage>(
+     "navigate_to_pose/_action/feedback",
+     rclcpp::SystemDefaultsQoS(),
+-    [this](const nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage::SharedPtr msg) {
++    [this](const nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage::ConstSharedPtr msg) {
+       navigation_feedback_indicator_->setText(getNavToPoseFeedbackLabel(msg->feedback));
+     });
+   nav_through_poses_feedback_sub_ =
+     node->create_subscription<nav2_msgs::action::NavigateThroughPoses::Impl::FeedbackMessage>(
+     "navigate_through_poses/_action/feedback",
+     rclcpp::SystemDefaultsQoS(),
+-    [this](const nav2_msgs::action::NavigateThroughPoses::Impl::FeedbackMessage::SharedPtr msg) {
++    [this](const nav2_msgs::action::NavigateThroughPoses::Impl::FeedbackMessage::ConstSharedPtr msg) {
+       navigation_feedback_indicator_->setText(getNavThroughPosesFeedbackLabel(msg->feedback));
+     });
+ 
+@@ -406,7 +406,7 @@ Nav2Panel::onInitialize()
+   navigation_goal_status_sub_ = node->create_subscription<action_msgs::msg::GoalStatusArray>(
+     "navigate_to_pose/_action/status",
+     rclcpp::SystemDefaultsQoS(),
+-    [this](const action_msgs::msg::GoalStatusArray::SharedPtr msg) {
++    [this](const action_msgs::msg::GoalStatusArray::ConstSharedPtr msg) {
+       navigation_goal_status_indicator_->setText(
+         getGoalStatusLabel(msg->status_list.back().status));
+       if (msg->status_list.back().status != action_msgs::msg::GoalStatus::STATUS_EXECUTING) {
+@@ -416,7 +416,7 @@ Nav2Panel::onInitialize()
+   nav_through_poses_goal_status_sub_ = node->create_subscription<action_msgs::msg::GoalStatusArray>(
+     "navigate_through_poses/_action/status",
+     rclcpp::SystemDefaultsQoS(),
+-    [this](const action_msgs::msg::GoalStatusArray::SharedPtr msg) {
++    [this](const action_msgs::msg::GoalStatusArray::ConstSharedPtr msg) {
+       navigation_goal_status_indicator_->setText(
+         getGoalStatusLabel(msg->status_list.back().status));
+       if (msg->status_list.back().status != action_msgs::msg::GoalStatus::STATUS_EXECUTING) {
+diff --git a/nav2_util/include/nav2_util/odometry_utils.hpp b/nav2_util/include/nav2_util/odometry_utils.hpp
+index 185a86d1..22143360 100644
+--- a/nav2_util/include/nav2_util/odometry_utils.hpp
++++ src/ros-planning/navigation2/nav2_util/include/nav2_util/odometry_utils.hpp
+@@ -81,7 +81,7 @@ protected:
+    * @brief Callback of odometry subscriber to process
+    * @param msg Odometry msg to smooth
+    */
+-  void odomCallback(nav_msgs::msg::Odometry::SharedPtr msg);
++  void odomCallback(nav_msgs::msg::Odometry::ConstSharedPtr msg);
+ 
+   /**
+    * @brief Update internal state of the smoother after getting new data
+diff --git a/nav2_util/src/odometry_utils.cpp b/nav2_util/src/odometry_utils.cpp
+index 9bf585bd..58e64882 100644
+--- a/nav2_util/src/odometry_utils.cpp
++++ src/ros-planning/navigation2/nav2_util/src/odometry_utils.cpp
+@@ -63,7 +63,7 @@ OdomSmoother::OdomSmoother(
+   odom_cumulate_.twist.twist.angular.z = 0;
+ }
+ 
+-void OdomSmoother::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg)
++void OdomSmoother::odomCallback(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+ {
+   std::lock_guard<std::mutex> lock(odom_mutex_);
+ 
+diff --git a/nav2_velocity_smoother/include/nav2_velocity_smoother/velocity_smoother.hpp b/nav2_velocity_smoother/include/nav2_velocity_smoother/velocity_smoother.hpp
+index a059e740..4658eedd 100644
+--- a/nav2_velocity_smoother/include/nav2_velocity_smoother/velocity_smoother.hpp
++++ src/ros-planning/navigation2/nav2_velocity_smoother/include/nav2_velocity_smoother/velocity_smoother.hpp
+@@ -113,7 +113,7 @@ protected:
+    * @brief Callback for incoming velocity commands
+    * @param msg Twist message
+    */
+-  void inputCommandCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
++  void inputCommandCallback(const geometry_msgs::msg::Twist::ConstSharedPtr msg);
+ 
+   /**
+    * @brief Main worker timer function
+diff --git a/nav2_velocity_smoother/src/velocity_smoother.cpp b/nav2_velocity_smoother/src/velocity_smoother.cpp
+index cb2ca199..a0ead5f8 100644
+--- a/nav2_velocity_smoother/src/velocity_smoother.cpp
++++ src/ros-planning/navigation2/nav2_velocity_smoother/src/velocity_smoother.cpp
+@@ -179,7 +179,7 @@ VelocitySmoother::on_shutdown(const rclcpp_lifecycle::State &)
+   return nav2_util::CallbackReturn::SUCCESS;
+ }
+ 
+-void VelocitySmoother::inputCommandCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
++void VelocitySmoother::inputCommandCallback(const geometry_msgs::msg::Twist::ConstSharedPtr msg)
+ {
+   // If message contains NaN or Inf, ignore
+   if (!nav2_util::validateTwist(*msg)) {
+@@ -187,7 +187,7 @@ void VelocitySmoother::inputCommandCallback(const geometry_msgs::msg::Twist::Sha
+     return;
+   }
+ 
+-  command_ = msg;
++  command_ = std::make_shared<geometry_msgs::msg::Twist>(*msg);
+   last_command_time_ = now();
+ }
+ 

@@ -1,0 +1,76 @@
+diff --git a/nav2_map_server/CMakeLists.txt b/nav2_map_server/CMakeLists.txt
+index 0a43c136..f39909d0 100644
+--- a/nav2_map_server/CMakeLists.txt
++++ src/ros-planning/navigation2/nav2_map_server/CMakeLists.txt
+@@ -120,6 +120,11 @@ target_include_directories(${map_io_library_name} SYSTEM PRIVATE
+ target_link_libraries(${map_io_library_name}
+   ${GRAPHICSMAGICKCPP_LIBRARIES})
+ 
++if(APPLE)
++  target_compile_definitions(${map_io_library_name} PRIVATE
++    _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
++endif()
++
+ if(WIN32)
+   target_compile_definitions(${map_io_library_name} PRIVATE
+     YAML_CPP_DLL)
+diff --git a/nav2_map_server/cmake_modules/FindGRAPHICSMAGICKCPP.cmake b/nav2_map_server/cmake_modules/FindGRAPHICSMAGICKCPP.cmake
+index c04356b4..76ab6ed9 100644
+--- a/nav2_map_server/cmake_modules/FindGRAPHICSMAGICKCPP.cmake
++++ src/ros-planning/navigation2/nav2_map_server/cmake_modules/FindGRAPHICSMAGICKCPP.cmake
+@@ -28,7 +28,53 @@ find_path(GRAPHICSMAGICKCPP_INCLUDE_DIRS
+ find_library(GRAPHICSMAGICKCPP_LIBRARIES
+   NAMES "GraphicsMagick++" "graphicsmagick")
+ 
++find_program(GRAPHICSMAGICKCPP_CONFIG
++  NAMES "GraphicsMagick++-config")
++
++if(GRAPHICSMAGICKCPP_CONFIG)
++  execute_process(
++    COMMAND ${GRAPHICSMAGICKCPP_CONFIG} --ldflags
++    RESULT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_LDFLAGS_RESULT
++    OUTPUT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_LDFLAGS
++    OUTPUT_STRIP_TRAILING_WHITESPACE)
++  if(GRAPHICSMAGICKCPP_CONFIG_LDFLAGS_RESULT EQUAL 0 AND GRAPHICSMAGICKCPP_CONFIG_LDFLAGS)
++    separate_arguments(_GRAPHICSMAGICKCPP_LDFLAGS NATIVE_COMMAND "${GRAPHICSMAGICKCPP_CONFIG_LDFLAGS}")
++    foreach(_flag IN LISTS _GRAPHICSMAGICKCPP_LDFLAGS)
++      if(_flag MATCHES "^-L.+")
++        list(APPEND GRAPHICSMAGICKCPP_LIBRARIES "${_flag}")
++      endif()
++    endforeach()
++  endif()
++
++  execute_process(
++    COMMAND ${GRAPHICSMAGICKCPP_CONFIG} --libs
++    RESULT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_LIBS_RESULT
++    OUTPUT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_LIBS
++    OUTPUT_STRIP_TRAILING_WHITESPACE)
++  if(GRAPHICSMAGICKCPP_CONFIG_LIBS_RESULT EQUAL 0 AND GRAPHICSMAGICKCPP_CONFIG_LIBS)
++    separate_arguments(_GRAPHICSMAGICKCPP_LIBS NATIVE_COMMAND "${GRAPHICSMAGICKCPP_CONFIG_LIBS}")
++    list(APPEND GRAPHICSMAGICKCPP_LIBRARIES ${_GRAPHICSMAGICKCPP_LIBS})
++  endif()
++
++  execute_process(
++    COMMAND ${GRAPHICSMAGICKCPP_CONFIG} --cppflags
++    RESULT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_CPPFLAGS_RESULT
++    OUTPUT_VARIABLE GRAPHICSMAGICKCPP_CONFIG_CPPFLAGS
++    OUTPUT_STRIP_TRAILING_WHITESPACE)
++  if(GRAPHICSMAGICKCPP_CONFIG_CPPFLAGS_RESULT EQUAL 0 AND GRAPHICSMAGICKCPP_CONFIG_CPPFLAGS)
++    separate_arguments(_GRAPHICSMAGICKCPP_CPPFLAGS NATIVE_COMMAND "${GRAPHICSMAGICKCPP_CONFIG_CPPFLAGS}")
++    foreach(_flag IN LISTS _GRAPHICSMAGICKCPP_CPPFLAGS)
++      if(_flag MATCHES "^-I(.+)")
++        list(APPEND GRAPHICSMAGICKCPP_INCLUDE_DIRS "${CMAKE_MATCH_1}")
++      endif()
++    endforeach()
++    list(REMOVE_DUPLICATES GRAPHICSMAGICKCPP_INCLUDE_DIRS)
++  endif()
++
++  list(REMOVE_DUPLICATES GRAPHICSMAGICKCPP_LIBRARIES)
++endif()
++
+ find_package_handle_standard_args(
+   GRAPHICSMAGICKCPP
+   GRAPHICSMAGICKCPP_LIBRARIES
+-  GRAPHICSMAGICKCPP_INCLUDE_DIRS)
+\ No newline at end of file
++  GRAPHICSMAGICKCPP_INCLUDE_DIRS)
