@@ -1,0 +1,13 @@
+diff --git a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/costmap_filter.hpp b/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/costmap_filter.hpp
+index 65882a1b..ed2c7121 100644
+--- a/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/costmap_filter.hpp
++++ src/ros-planning/navigation2/nav2_costmap_2d/include/nav2_costmap_2d/costmap_filters/costmap_filter.hpp
+@@ -127,7 +127,7 @@ public:
+   /**
+    * @brief If clearing operations should be processed on this layer or not
+    */
+-  bool isClearable() {return false;}
++  bool isClearable() override {return false;}
+ 
+   /** CostmapFilter API **/
+   /**

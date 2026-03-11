@@ -11,6 +11,20 @@ from pathlib import Path
 import yaml
 
 PINNED_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
+GIT_NO_LFS_CONFIG = [
+    "-c",
+    "filter.lfs.process=",
+    "-c",
+    "filter.lfs.smudge=",
+    "-c",
+    "filter.lfs.clean=",
+    "-c",
+    "filter.lfs.required=false",
+]
+
+
+def git_no_lfs(args: list[str]) -> list[str]:
+    return ["git", *GIT_NO_LFS_CONFIG, *args]
 
 
 def run(cmd: list[str], cwd: Path | None = None, capture: bool = False) -> str:
@@ -63,15 +77,16 @@ def sync_repo(
     if not repo_path.exists():
         print(f"[clone] {repo_name}")
         run(
-            [
-                "git",
-                "clone",
-                "--origin",
-                "origin",
-                "--no-checkout",
-                repo_url,
-                str(repo_path),
-            ]
+            git_no_lfs(
+                [
+                    "clone",
+                    "--origin",
+                    "origin",
+                    "--no-checkout",
+                    repo_url,
+                    str(repo_path),
+                ]
+            )
         )
     else:
         current_url = run(
@@ -103,16 +118,16 @@ def sync_repo(
     print(f"[checkout] {repo_name} -> {repo_version}")
     try:
         if fetched_by_ref:
-            run(["git", "checkout", "--force", "FETCH_HEAD"], cwd=repo_path)
+            run(git_no_lfs(["checkout", "--force", "FETCH_HEAD"]), cwd=repo_path)
         else:
-            run(["git", "checkout", "--force", repo_version], cwd=repo_path)
+            run(git_no_lfs(["checkout", "--force", repo_version]), cwd=repo_path)
     except RuntimeError:
         if not allow_non_pinned:
             raise
-        run(["git", "checkout", "--force", f"origin/{repo_version}"], cwd=repo_path)
+        run(git_no_lfs(["checkout", "--force", f"origin/{repo_version}"]), cwd=repo_path)
 
     if update_submodules:
-        run(["git", "submodule", "update", "--init", "--recursive"], cwd=repo_path)
+        run(git_no_lfs(["submodule", "update", "--init", "--recursive"]), cwd=repo_path)
 
     if PINNED_SHA1_RE.fullmatch(repo_version):
         actual = run(["git", "rev-parse", "HEAD"], cwd=repo_path, capture=True).strip()

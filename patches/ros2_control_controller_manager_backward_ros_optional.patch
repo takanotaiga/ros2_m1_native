@@ -1,0 +1,13 @@
+diff --git a/controller_manager/CMakeLists.txt b/controller_manager/CMakeLists.txt
+index 100ccc07..dc3a7bc4 100644
+--- src/ros-controls/ros2_control/controller_manager/CMakeLists.txt
++++ src/ros-controls/ros2_control/controller_manager/CMakeLists.txt
+@@ -20,7 +20,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
+ find_package(ament_cmake REQUIRED)
+ find_package(ament_cmake_python REQUIRED)
+ find_package(ament_cmake_core REQUIRED)
+-find_package(backward_ros REQUIRED)
++find_package(backward_ros QUIET)
+ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
+   find_package(${Dependency} REQUIRED)
+ endforeach()

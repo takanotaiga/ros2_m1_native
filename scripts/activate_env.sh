@@ -46,7 +46,7 @@ export PATH="${ROS2_LOCAL_DEPS_PREFIX}/bin:${PATH}"
 export PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/bin:${PATH}"
 if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
   PYTHON_HOST_BINDIR="$("${ROOT_DIR}/.venv/bin/python" -c 'import sysconfig; print(sysconfig.get_config_var("BINDIR"))')"
-  export PATH="${PYTHON_HOST_BINDIR}:${PATH}"
+  export PATH="${PATH}:${PYTHON_HOST_BINDIR}"
 fi
 if command -v xcrun >/dev/null 2>&1; then
   export SDKROOT="${SDKROOT:-$(xcrun --sdk macosx --show-sdk-path)}"
@@ -56,15 +56,19 @@ export CMAKE_PREFIX_PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5:${ROS2_LOCAL_DEPS_PREFIX
 export CMAKE_LIBRARY_PATH="${ROS2_LOCAL_DEPS_PREFIX}/lib:${CMAKE_LIBRARY_PATH:-}"
 export CMAKE_INCLUDE_PATH="${ROS2_LOCAL_DEPS_PREFIX}/include:${CMAKE_INCLUDE_PATH:-}"
 export PKG_CONFIG_PATH="${ROS2_LOCAL_DEPS_PREFIX}/qt5/lib/pkgconfig:${ROS2_LOCAL_DEPS_PREFIX}/lib/pkgconfig:${ROS2_LOCAL_DEPS_PREFIX}/share/pkgconfig:${PKG_CONFIG_PATH:-}"
+export BOOST_ROOT="${ROS2_LOCAL_DEPS_PREFIX}"
+export PCL_DIR="${ROS2_LOCAL_DEPS_PREFIX}/lib/cmake/pcl"
 export COLCON_EXTENSION_BLOCKLIST="${COLCON_EXTENSION_BLOCKLIST:-colcon_core.event_handler.desktop_notification}"
 export PYTHONNOUSERSITE=1
+export ROS_VERSION="${ROS_VERSION:-2}"
+export ROS_PYTHON_VERSION="${ROS_PYTHON_VERSION:-3}"
 
 ROS2_M1_NATIVE_PYTHON_EXECUTABLE="${ROOT_DIR}/.venv/bin/python"
 if [[ -x "${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" ]]; then
   export ROS2_M1_NATIVE_PYTHON_EXECUTABLE
   export COLCON_PYTHON_EXECUTABLE="${COLCON_PYTHON_EXECUTABLE:-${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}}"
 
-  ROS2_M1_NATIVE_PYTHON_ROOT_DIR="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import sys; print(sys.base_prefix)')"
+  ROS2_M1_NATIVE_PYTHON_ROOT_DIR="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import sys; print(sys.prefix)')"
   ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
   ROS2_M1_NATIVE_PYTHON_LIBRARY="$("${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" -c 'import pathlib, sysconfig; print(pathlib.Path(sysconfig.get_config_var("LIBDIR")) / sysconfig.get_config_var("LDLIBRARY"))')"
   export ROS2_M1_NATIVE_PYTHON_ROOT_DIR
@@ -80,6 +84,8 @@ build:
     - -DPYTHON_EXECUTABLE=${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}
     - -DPython3_EXECUTABLE=${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}
     - -DPython3_ROOT_DIR=${ROS2_M1_NATIVE_PYTHON_ROOT_DIR}
+    - -DPython3_FIND_VIRTUALENV=ONLY
+    - -DPython3_FIND_STRATEGY=LOCATION
     - -DPython3_INCLUDE_DIR=${ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR}
     - -DPython3_LIBRARY=${ROS2_M1_NATIVE_PYTHON_LIBRARY}
     - -DPYTHON_INCLUDE_DIR=${ROS2_M1_NATIVE_PYTHON_INCLUDE_DIR}

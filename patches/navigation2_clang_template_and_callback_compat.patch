@@ -1,0 +1,230 @@
+diff --git a/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_server_impl.hpp b/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_server_impl.hpp
+index 25b4133e..73abb672 100644
+--- src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_server_impl.hpp
++++ src/ros-planning/navigation2/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_server_impl.hpp
+@@ -200,10 +200,12 @@ bool BtActionServer<ActionT>::loadBehaviorTree(const std::string & bt_xml_filena
+   try {
+     tree_ = bt_->createTreeFromText(xml_string, blackboard_);
+     for (auto & blackboard : tree_.blackboard_stack) {
+-      blackboard->set<rclcpp::Node::SharedPtr>("node", client_node_);
+-      blackboard->set<std::chrono::milliseconds>("server_timeout", default_server_timeout_);
+-      blackboard->set<std::chrono::milliseconds>("bt_loop_duration", bt_loop_duration_);
+-      blackboard->set<std::chrono::milliseconds>(
++      blackboard->template set<rclcpp::Node::SharedPtr>("node", client_node_);
++      blackboard->template set<std::chrono::milliseconds>(
++        "server_timeout", default_server_timeout_);
++      blackboard->template set<std::chrono::milliseconds>(
++        "bt_loop_duration", bt_loop_duration_);
++      blackboard->template set<std::chrono::milliseconds>(
+         "wait_for_service_timeout",
+         wait_for_service_timeout_);
+     }
+diff --git a/nav2_behaviors/include/nav2_behaviors/plugins/assisted_teleop.hpp b/nav2_behaviors/include/nav2_behaviors/plugins/assisted_teleop.hpp
+index 12a85f32..d4d2fbb3 100644
+--- src/ros-planning/navigation2/nav2_behaviors/include/nav2_behaviors/plugins/assisted_teleop.hpp
++++ src/ros-planning/navigation2/nav2_behaviors/include/nav2_behaviors/plugins/assisted_teleop.hpp
+@@ -76,13 +76,13 @@ protected:
+    * @brief Callback function for velocity subscriber
+    * @param msg received Twist message
+    */
+-  void teleopVelocityCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
++  void teleopVelocityCallback(const geometry_msgs::msg::Twist::ConstSharedPtr msg);
+ 
+   /**
+    * @brief Callback function to preempt assisted teleop
+    * @param msg empty message
+    */
+-  void preemptTeleopCallback(const std_msgs::msg::Empty::SharedPtr msg);
++  void preemptTeleopCallback(const std_msgs::msg::Empty::ConstSharedPtr msg);
+ 
+   AssistedTeleopAction::Feedback::SharedPtr feedback_;
+ 
+diff --git a/nav2_behaviors/plugins/assisted_teleop.cpp b/nav2_behaviors/plugins/assisted_teleop.cpp
+index fafcb62b..8b8ea811 100644
+--- src/ros-planning/navigation2/nav2_behaviors/plugins/assisted_teleop.cpp
++++ src/ros-planning/navigation2/nav2_behaviors/plugins/assisted_teleop.cpp
+@@ -170,12 +170,12 @@ geometry_msgs::msg::Pose2D AssistedTeleop::projectPose(
+   return projected_pose;
+ }
+ 
+-void AssistedTeleop::teleopVelocityCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
++void AssistedTeleop::teleopVelocityCallback(const geometry_msgs::msg::Twist::ConstSharedPtr msg)
+ {
+   teleop_twist_ = *msg;
+ }
+ 
+-void AssistedTeleop::preemptTeleopCallback(const std_msgs::msg::Empty::SharedPtr)
++void AssistedTeleop::preemptTeleopCallback(const std_msgs::msg::Empty::ConstSharedPtr)
+ {
+   preempt_teleop_ = true;
+ }
+diff --git a/nav2_controller/include/nav2_controller/controller_server.hpp b/nav2_controller/include/nav2_controller/controller_server.hpp
+index 90f030f0..88ded738 100644
+--- src/ros-planning/navigation2/nav2_controller/include/nav2_controller/controller_server.hpp
++++ src/ros-planning/navigation2/nav2_controller/include/nav2_controller/controller_server.hpp
+@@ -270,7 +270,7 @@ private:
+     * @brief Callback for speed limiting messages
+     * @param msg Shared pointer to nav2_msgs::msg::SpeedLimit
+     */
+-  void speedLimitCallback(const nav2_msgs::msg::SpeedLimit::SharedPtr msg);
++  void speedLimitCallback(const nav2_msgs::msg::SpeedLimit::ConstSharedPtr msg);
+ };
+ 
+ }  // namespace nav2_controller
+diff --git a/nav2_controller/src/controller_server.cpp b/nav2_controller/src/controller_server.cpp
+index 25041143..8c5e3e4c 100644
+--- src/ros-planning/navigation2/nav2_controller/src/controller_server.cpp
++++ src/ros-planning/navigation2/nav2_controller/src/controller_server.cpp
+@@ -617,7 +617,7 @@ bool ControllerServer::getRobotPose(geometry_msgs::msg::PoseStamped & pose)
+   return true;
+ }
+ 
+-void ControllerServer::speedLimitCallback(const nav2_msgs::msg::SpeedLimit::SharedPtr msg)
++void ControllerServer::speedLimitCallback(const nav2_msgs::msg::SpeedLimit::ConstSharedPtr msg)
+ {
+   ControllerMap::iterator it;
+   for (it = controllers_.begin(); it != controllers_.end(); ++it) {
+diff --git a/nav2_mppi_controller/src/critics/velocity_deadband_critic.cpp b/nav2_mppi_controller/src/critics/velocity_deadband_critic.cpp
+index 84d3aba3..b02738bb 100644
+--- src/ros-planning/navigation2/nav2_mppi_controller/src/critics/velocity_deadband_critic.cpp
++++ src/ros-planning/navigation2/nav2_mppi_controller/src/critics/velocity_deadband_critic.cpp
+@@ -54,20 +54,18 @@ void VelocityDeadbandCritic::score(CriticData & data)
+     if (power_ > 1u) {
+       data.costs += xt::pow(
+         xt::sum(
+-          std::move(
+-            xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
+-            xt::maximum(fabs(deadband_velocities_.at(1)) - xt::fabs(vy), 0) +
+-            xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
++          (xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
++          xt::maximum(fabs(deadband_velocities_.at(1)) - xt::fabs(vy), 0) +
++          xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
+           data.model_dt,
+           {1}, immediate) *
+         weight_,
+         power_);
+     } else {
+       data.costs += xt::sum(
+-        (std::move(
+-          xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
+-          xt::maximum(fabs(deadband_velocities_.at(1)) - xt::fabs(vy), 0) +
+-          xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0))) *
++        (xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
++        xt::maximum(fabs(deadband_velocities_.at(1)) - xt::fabs(vy), 0) +
++        xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
+         data.model_dt,
+         {1}, immediate) *
+         weight_;
+@@ -78,18 +76,16 @@ void VelocityDeadbandCritic::score(CriticData & data)
+   if (power_ > 1u) {
+     data.costs += xt::pow(
+       xt::sum(
+-        std::move(
+-          xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
+-          xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
++        (xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
++        xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
+         data.model_dt,
+         {1}, immediate) *
+       weight_,
+       power_);
+   } else {
+     data.costs += xt::sum(
+-      (std::move(
+-        xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
+-        xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0))) *
++      (xt::maximum(fabs(deadband_velocities_.at(0)) - xt::fabs(vx), 0) +
++      xt::maximum(fabs(deadband_velocities_.at(2)) - xt::fabs(wz), 0)) *
+       data.model_dt,
+       {1}, immediate) *
+       weight_;
+diff --git a/nav2_route/include/nav2_route/plugins/edge_cost_functions/goal_orientation_scorer.hpp b/nav2_route/include/nav2_route/plugins/edge_cost_functions/goal_orientation_scorer.hpp
+index 061ad45d..e77cd741 100644
+--- src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/edge_cost_functions/goal_orientation_scorer.hpp
++++ src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/edge_cost_functions/goal_orientation_scorer.hpp
+@@ -25,7 +25,7 @@
+ #include "nav2_util/node_utils.hpp"
+ #include "nav2_costmap_2d/costmap_subscriber.hpp"
+ #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+-#include "tf2/utils.hpp"
++#include "tf2/utils.h"
+ #include "angles/angles.h"
+ 
+ namespace nav2_route
+diff --git a/nav2_route/include/nav2_route/plugins/edge_cost_functions/start_pose_orientation_scorer.hpp b/nav2_route/include/nav2_route/plugins/edge_cost_functions/start_pose_orientation_scorer.hpp
+index 252f1b53..201d88d4 100644
+--- src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/edge_cost_functions/start_pose_orientation_scorer.hpp
++++ src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/edge_cost_functions/start_pose_orientation_scorer.hpp
+@@ -26,7 +26,7 @@
+ #include "nav2_util/robot_utils.hpp"
+ #include "nav2_costmap_2d/costmap_subscriber.hpp"
+ #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+-#include "tf2/utils.hpp"
++#include "tf2/utils.h"
+ #include "angles/angles.h"
+ 
+ namespace nav2_route
+diff --git a/nav2_route/include/nav2_route/plugins/route_operation_client.hpp b/nav2_route/include/nav2_route/plugins/route_operation_client.hpp
+index c74e6c0a..c6f8bcfa 100644
+--- src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/route_operation_client.hpp
++++ src/ros-planning/navigation2/nav2_route/include/nav2_route/plugins/route_operation_client.hpp
+@@ -167,7 +167,7 @@ protected:
+           throw nav2_core::OperationFailed(
+                   "Route operation service (" + getName() + ") failed to lock node.");
+         }
+-        auto client = node->create_client<SrvT>(
++        auto client = node->template create_client<SrvT>(
+           srv_name, rclcpp::SystemDefaultsQoS().get_rmw_qos_profile(), callback_group_);
+         response = callService(client, req);
+       }
+diff --git a/nav2_route/include/nav2_route/route_server.hpp b/nav2_route/include/nav2_route/route_server.hpp
+index cc162594..6f6edb3f 100644
+--- src/ros-planning/navigation2/nav2_route/include/nav2_route/route_server.hpp
++++ src/ros-planning/navigation2/nav2_route/include/nav2_route/route_server.hpp
+@@ -129,7 +129,7 @@ protected:
+   template<typename GoalT>
+   Route findRoute(
+     const std::shared_ptr<const GoalT> goal,
+-    ReroutingState & rerouting_info = ReroutingState());
++    ReroutingState & rerouting_info);
+ 
+   /**
+    * @brief Main processing called by both action server callbacks to centralize
+diff --git a/nav2_smac_planner/src/a_star.cpp b/nav2_smac_planner/src/a_star.cpp
+index e23e7513..3e18a5f6 100644
+--- src/ros-planning/navigation2/nav2_smac_planner/src/a_star.cpp
++++ src/ros-planning/navigation2/nav2_smac_planner/src/a_star.cpp
+@@ -13,7 +13,6 @@
+ // See the License for the specific language governing permissions and
+ // limitations under the License. Reserved.
+ 
+-#include <omp.h>
+ #include <cmath>
+ #include <stdexcept>
+ #include <memory>
+diff --git a/nav2_waypoint_follower/include/nav2_waypoint_follower/plugins/input_at_waypoint.hpp b/nav2_waypoint_follower/include/nav2_waypoint_follower/plugins/input_at_waypoint.hpp
+index 2a853700..1434c226 100644
+--- src/ros-planning/navigation2/nav2_waypoint_follower/include/nav2_waypoint_follower/plugins/input_at_waypoint.hpp
++++ src/ros-planning/navigation2/nav2_waypoint_follower/include/nav2_waypoint_follower/plugins/input_at_waypoint.hpp
+@@ -69,7 +69,7 @@ protected:
+    * @brief Processor callback
+    * @param msg Empty message
+    */
+-  void Cb(const std_msgs::msg::Empty::SharedPtr msg);
++  void Cb(const std_msgs::msg::Empty::ConstSharedPtr msg);
+ 
+   bool input_received_;
+   bool is_enabled_;
+diff --git a/nav2_waypoint_follower/plugins/input_at_waypoint.cpp b/nav2_waypoint_follower/plugins/input_at_waypoint.cpp
+index 5c613219..732120cb 100644
+--- src/ros-planning/navigation2/nav2_waypoint_follower/plugins/input_at_waypoint.cpp
++++ src/ros-planning/navigation2/nav2_waypoint_follower/plugins/input_at_waypoint.cpp
+@@ -72,7 +72,7 @@ void InputAtWaypoint::initialize(
+     input_topic, 1, std::bind(&InputAtWaypoint::Cb, this, _1));
+ }
+ 
+-void InputAtWaypoint::Cb(const std_msgs::msg::Empty::SharedPtr /*msg*/)
++void InputAtWaypoint::Cb(const std_msgs::msg::Empty::ConstSharedPtr /*msg*/)
+ {
+   std::lock_guard<std::mutex> lock(mutex_);
+   input_received_ = true;

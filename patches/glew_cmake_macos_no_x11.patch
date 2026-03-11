@@ -1,0 +1,16 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 51ee4fc..f9f9e43 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -117,9 +117,8 @@ else()
+ endif()
+ 
+ # OS Specific dependencies
+-if(APPLE AND CMAKE_SYSTEM_VERSION VERSION_LESS "25.0.0")
+-	find_library(AGL_LIBRARY AGL REQUIRED)
+-	list(APPEND LIBRARIES ${AGL_LIBRARY})
++if(APPLE)
++	# Modern macOS links via OpenGL.framework; skip legacy AGL/X11 deps.
+ elseif(NOT WIN32)
+ 	if(GLEW_OSMESA)
+ 		find_library(OSMESA_LIBRARY OSMesa REQUIRED)

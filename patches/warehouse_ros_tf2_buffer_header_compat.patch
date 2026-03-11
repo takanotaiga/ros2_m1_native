@@ -1,0 +1,24 @@
+diff --git a/include/warehouse_ros/transform_collection.h b/include/warehouse_ros/transform_collection.h
+--- src/moveit/warehouse_ros/include/warehouse_ros/transform_collection.h
++++ src/moveit/warehouse_ros/include/warehouse_ros/transform_collection.h
+@@ -42,12 +42,16 @@
+ #include <tf2_ros/transform_listener.h>
+ #include <tf2_msgs/msg/tf_message.hpp>
+ #include <geometry_msgs/msg/transform_stamped.hpp>
+ // TODO(v4hn): remove after EOL galactic
+ #if __has_include(<tf2_geometry_msgs/tf2_geometry_msgs.hpp>)
+ #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+-#include <tf2_ros/buffer.hpp>
+ #else
+ #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+-#include <tf2_ros/buffer.h>
+ #endif
++
++#if __has_include(<tf2_ros/buffer.hpp>)
++#include <tf2_ros/buffer.hpp>
++#else
++#include <tf2_ros/buffer.h>
++#endif
+ 
+ namespace warehouse_ros
+ {

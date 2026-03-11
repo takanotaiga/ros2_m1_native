@@ -1,0 +1,32 @@
+diff --git a/moveit_kinematics/cached_ik_kinematics_plugin/include/moveit/cached_ik_kinematics_plugin/detail/NearestNeighborsGNAT.h b/moveit_kinematics/cached_ik_kinematics_plugin/include/moveit/cached_ik_kinematics_plugin/detail/NearestNeighborsGNAT.h
+index 431d8b47e..77dc62ac0 100644
+--- src/moveit/moveit2/moveit_kinematics/cached_ik_kinematics_plugin/include/moveit/cached_ik_kinematics_plugin/detail/NearestNeighborsGNAT.h
++++ src/moveit/moveit2/moveit_kinematics/cached_ik_kinematics_plugin/include/moveit/cached_ik_kinematics_plugin/detail/NearestNeighborsGNAT.h
+@@ -40,6 +40,7 @@
+ 
+ #include <moveit/exceptions/exceptions.h>
+ #include <algorithm>
++#include <random>
+ #include <queue>
+ #include <unordered_set>
+ #include <utility>
+@@ -552,7 +553,8 @@ protected:
+         std::vector<int> permutation(children_.size());
+         for (unsigned int i = 0; i < permutation.size(); ++i)
+           permutation[i] = i;
+-        std::random_shuffle(permutation.begin(), permutation.end());
++        auto rng = std::mt19937{std::random_device{}()};
++        std::shuffle(permutation.begin(), permutation.end(), rng);
+ 
+         for (unsigned int i = 0; i < children_.size(); ++i)
+           if (permutation[i] >= 0)
+@@ -606,7 +608,8 @@ protected:
+         std::vector<int> permutation(children_.size());
+         for (unsigned int i = 0; i < permutation.size(); ++i)
+           permutation[i] = i;
+-        std::random_shuffle(permutation.begin(), permutation.end());
++        auto rng = std::mt19937{std::random_device{}()};
++        std::shuffle(permutation.begin(), permutation.end(), rng);
+ 
+         for (unsigned int i = 0; i < children_.size(); ++i)
+           if (permutation[i] >= 0)

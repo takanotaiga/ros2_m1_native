@@ -1,0 +1,26 @@
+diff --git a/nav2_constrained_smoother/CMakeLists.txt b/nav2_constrained_smoother/CMakeLists.txt
+index 6bc4e7dc..a1554993 100644
+--- a/nav2_constrained_smoother/CMakeLists.txt
++++ src/ros-planning/navigation2/nav2_constrained_smoother/CMakeLists.txt
+@@ -13,7 +13,7 @@ find_package(nav2_util REQUIRED)
+ find_package(nav2_msgs REQUIRED)
+ find_package(nav2_costmap_2d REQUIRED)
+ find_package(pluginlib REQUIRED)
+-find_package(Ceres REQUIRED COMPONENTS SuiteSparse)
++find_package(Ceres REQUIRED)
+ 
+ set(CMAKE_CXX_STANDARD 17)
+ 
+diff --git a/nav2_constrained_smoother/include/nav2_constrained_smoother/options.hpp b/nav2_constrained_smoother/include/nav2_constrained_smoother/options.hpp
+index 637443eb..b09ac3a0 100644
+--- a/nav2_constrained_smoother/include/nav2_constrained_smoother/options.hpp
++++ src/ros-planning/navigation2/nav2_constrained_smoother/include/nav2_constrained_smoother/options.hpp
+@@ -152,7 +152,7 @@ struct OptimizerParams
+ 
+     // Optimizer params
+     nav2_util::declare_parameter_if_not_declared(
+-      node, local_name + "linear_solver_type", rclcpp::ParameterValue("SPARSE_NORMAL_CHOLESKY"));
++      node, local_name + "linear_solver_type", rclcpp::ParameterValue("DENSE_QR"));
+     node->get_parameter(local_name + "linear_solver_type", linear_solver_type);
+     if (solver_types.find(linear_solver_type) == solver_types.end()) {
+       std::stringstream valid_types_str;

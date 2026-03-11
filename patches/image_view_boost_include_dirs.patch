@@ -1,0 +1,20 @@
+diff --git a/image_view/CMakeLists.txt b/image_view/CMakeLists.txt
+index 27231ef..081c3eb 100644
+--- src/ros-perception/image_pipeline/image_view/CMakeLists.txt
++++ src/ros-perception/image_pipeline/image_view/CMakeLists.txt
+@@ -14,6 +14,7 @@ ament_auto_find_build_dependencies()
+ 
+ find_package(Boost REQUIRED)
+ find_package(OpenCV REQUIRED)
++include_directories(${Boost_INCLUDE_DIRS})
+ 
+ # Deal with the GUI's
+ if(ANDROID)
+@@ -32,6 +33,7 @@ target_link_libraries(${PROJECT_NAME}_nodes
+   ${OpenCV_LIBRARIES}
+   ${Boost_LIBRARIES}
+ )
++target_include_directories(${PROJECT_NAME}_nodes PRIVATE ${Boost_INCLUDE_DIRS})
+ target_compile_definitions(${PROJECT_NAME}_nodes
+   PRIVATE "COMPOSITION_BUILDING_DLL"
+ )

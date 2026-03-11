@@ -1,0 +1,11 @@
+--- a/pcl_ros/CMakeLists.txt
++++ src/ros-perception/perception_pcl/pcl_ros/CMakeLists.txt
+@@ -10,7 +10,7 @@
+ 
+ ## Find system dependencies
+ find_package(Eigen3 REQUIRED)
+-find_package(PCL REQUIRED QUIET COMPONENTS core common features filters io segmentation surface)
++find_package(PCL REQUIRED QUIET COMPONENTS common io)
+ 
+ ## Find ROS package dependencies
+ find_package(ament_cmake REQUIRED)

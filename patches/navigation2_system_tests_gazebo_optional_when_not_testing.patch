@@ -1,0 +1,16 @@
+diff --git a/nav2_system_tests/CMakeLists.txt b/nav2_system_tests/CMakeLists.txt
+index 4f0f3bf9..4f53f9f2 100644
+--- a/nav2_system_tests/CMakeLists.txt
++++ src/ros-planning/navigation2/nav2_system_tests/CMakeLists.txt
+@@ -15,8 +15,10 @@ find_package(nav_msgs REQUIRED)
+ find_package(visualization_msgs REQUIRED)
+ find_package(geometry_msgs REQUIRED)
+ find_package(std_msgs REQUIRED)
+ find_package(tf2_geometry_msgs REQUIRED)
+-find_package(gazebo_ros_pkgs REQUIRED)
++if(BUILD_TESTING)
++  find_package(gazebo_ros_pkgs REQUIRED)
++endif()
+ find_package(nav2_amcl REQUIRED)
+ find_package(nav2_lifecycle_manager REQUIRED)
+ find_package(rclpy REQUIRED)
