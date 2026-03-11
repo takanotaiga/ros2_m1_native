@@ -48,3 +48,4 @@ apply_patch_file "${ROOT_DIR}/patches/navigation2_clang_template_and_callback_co
 apply_patch_file "${ROOT_DIR}/patches/navigation2_system_tests_gazebo_optional_when_not_testing.patch"
 apply_patch_file "${ROOT_DIR}/patches/slam_toolbox_macos_deps_compat.patch"
 apply_patch_file "${ROOT_DIR}/patches/velodyne_pointcloud_yaml_cpp_include_dirs.patch"
+apply_patch_file "${ROOT_DIR}/patches/random_numbers_cxx14_boost_compat.patch"
