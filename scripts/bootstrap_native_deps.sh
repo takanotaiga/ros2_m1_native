@@ -87,6 +87,7 @@ QT_PNG_PRIV="${QTBASE_SRC_DIR}/src/3rdparty/libpng/pngpriv.h"
 QT_IOSURFACE_HEADER="${QTBASE_SRC_DIR}/src/plugins/platforms/cocoa/qiosurfacegraphicsbuffer.h"
 PCL_ASCII_IO_SRC="${PCL_SRC_DIR}/io/src/ascii_io.cpp"
 PCL_IMAGE_GRABBER_SRC="${PCL_SRC_DIR}/io/src/image_grabber.cpp"
+PCL_PLY_PARSER_HEADER="${PCL_SRC_DIR}/io/include/pcl/io/ply/ply_parser.h"
 XTENSOR_PATCH_FILE="${ROOT_DIR}/patches/xtensor_svector_rebind_clang_fix.patch"
 GLEW_PATCH_FILE="${ROOT_DIR}/patches/glew_cmake_macos_no_x11.patch"
 
@@ -137,6 +138,10 @@ if [[ -f "${PCL_IMAGE_GRABBER_SRC}" ]]; then
   perl -0777 -i -pe 's/boost::filesystem::basename\s*\(itr->path\s*\(\)\)/itr->path ().stem().string()/g' "${PCL_IMAGE_GRABBER_SRC}"
   perl -0777 -i -pe 's/boost::filesystem::basename\s*\(filepath\)/boost::filesystem::path(filepath).stem().string()/g' "${PCL_IMAGE_GRABBER_SRC}"
   perl -0777 -i -pe 's/boost::filesystem::basename\s*\(pathname\)/boost::filesystem::path(pathname).stem().string()/g' "${PCL_IMAGE_GRABBER_SRC}"
+fi
+
+if [[ -f "${PCL_PLY_PARSER_HEADER}" ]] && ! grep -q '^#include <functional>$' "${PCL_PLY_PARSER_HEADER}"; then
+  perl -0777 -i -pe 's/#include <istream>\n/#include <istream>\n#include <functional>\n/' "${PCL_PLY_PARSER_HEADER}"
 fi
 
 if [[ ! -f "${NATIVE_PREFIX}/lib/libtinyxml2.dylib" ]]; then
