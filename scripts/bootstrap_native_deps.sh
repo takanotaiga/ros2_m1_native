@@ -99,7 +99,6 @@ PCL_IMAGE_GRABBER_SRC="${PCL_SRC_DIR}/io/src/image_grabber.cpp"
 PCL_PLY_PARSER_HEADER="${PCL_SRC_DIR}/io/include/pcl/io/ply/ply_parser.h"
 XTENSOR_PATCH_FILE="${ROOT_DIR}/patches/xtensor_svector_rebind_clang_fix.patch"
 GLEW_PATCH_FILE="${ROOT_DIR}/patches/glew_cmake_macos_no_x11.patch"
-BOOST_PYTHON_PATCH_FILE="${ROOT_DIR}/patches/boost_python_disable_numpy.patch"
 
 apply_git_patch_if_needed() {
   local repo_dir="$1"
@@ -117,6 +116,22 @@ apply_git_patch_if_needed() {
   fi
   echo "ERROR: failed to apply patch '${patch_file}' in '${repo_dir}'." >&2
   exit 1
+}
+
+disable_boost_numpy_install() {
+  local jamfile="${BOOST_SRC_DIR}/libs/python/build/Jamfile"
+  if [[ ! -f "${jamfile}" ]]; then
+    echo "ERROR: Boost.Python Jamfile not found: ${jamfile}" >&2
+    exit 1
+  fi
+
+  perl -0pi -e '
+    my $before = $_;
+    s@if \[ python\.configured \]\n\{\n.*?\n\}\nelse@if [ python.configured ]\n{\n    boost-install boost_python ;\n}\nelse@s;
+    if ($_ eq $before && $_ !~ /if \[ python\.configured \]\n\{\n\s*boost-install boost_python ;\n\}\nelse/s) {
+      die "unexpected Boost.Python Jamfile shape\n";
+    }
+  ' "${jamfile}"
 }
 
 if [[ -z "${SDKROOT:-}" ]] && command -v xcrun >/dev/null 2>&1; then
@@ -199,7 +214,6 @@ fi
 
 apply_git_patch_if_needed "${XTENSOR_SRC_DIR}" "${XTENSOR_PATCH_FILE}"
 apply_git_patch_if_needed "${GLEW_SRC_DIR}" "${GLEW_PATCH_FILE}"
-apply_git_patch_if_needed "${BOOST_SRC_DIR}" "${BOOST_PYTHON_PATCH_FILE}"
 
 if [[ ! -f "${NATIVE_PREFIX}/lib/cmake/GeographicLib/GeographicLibConfig.cmake" ]]; then
   rm -rf "${GEOGRAPHICLIB_BUILD_DIR}"
@@ -375,6 +389,7 @@ build_boost_if_needed() {
 
   pushd "${BOOST_SRC_DIR}" >/dev/null
   git submodule update --init --recursive --jobs "${JOBS}"
+  disable_boost_numpy_install
   ./bootstrap.sh --prefix="${NATIVE_PREFIX}" --with-python="${boost_python_executable}"
   ./b2 -j"${JOBS}" \
     toolset=clang \
