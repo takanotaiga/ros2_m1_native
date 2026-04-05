@@ -117,6 +117,7 @@ if [[ -n "${PACKAGES_SKIP:-}" ]]; then
 fi
 
 PYTHON_EXECUTABLE="${RELEASE_PYTHON_HOME}/bin/python"
+PYTHON_CONFIG_EXECUTABLE="${RELEASE_PYTHON_HOME}/bin/python3-config"
 PYTHON_ROOT_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sys; print(sys.prefix)')"
 PYTHON_INCLUDE_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
 PYTHON_LIBRARY_NAME="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_config_var("LDLIBRARY"))')"
@@ -159,6 +160,9 @@ BUILD_CMD+=(
   "-DPython3_LIBRARY=${PYTHON_LIBRARY}"
   "-DPYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}"
   "-DPYTHON_LIBRARY=${PYTHON_LIBRARY}"
+  "-DPYTHON_CONFIG_EXECUTABLE=${PYTHON_CONFIG_EXECUTABLE}"
+  "-DPythonExtra_INCLUDE_DIRS=${PYTHON_INCLUDE_DIR}"
+  "-DPythonExtra_LIBRARIES=${PYTHON_LIBRARY}"
   -Wno-dev
 )
 
