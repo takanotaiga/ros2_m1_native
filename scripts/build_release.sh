@@ -126,7 +126,9 @@ if [[ ! -f "${PYTHON_LIBRARY}" ]]; then
 fi
 
 BUILD_CMD=(
-  "${RELEASE_PYTHON_HOME}/bin/colcon"
+  "${PYTHON_EXECUTABLE}"
+  -c
+  'import sys; from colcon_core.command import main; sys.argv[0] = "colcon"; raise SystemExit(main())'
   --log-base "${RELEASE_COLCON_LOG_BASE}"
   build
   --base-paths "${ROOT_DIR}/src"
