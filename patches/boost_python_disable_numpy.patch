@@ -1,0 +1,18 @@
+diff --git a/libs/python/build/Jamfile b/libs/python/build/Jamfile
+--- a/libs/python/build/Jamfile
++++ b/libs/python/build/Jamfile
+@@ -143,13 +143,6 @@
+ if [ python.configured ]
+ {
+-    if [ python.numpy ]
+-    {
+-        boost-install boost_python boost_numpy ;
+-    }
+-    else
+-    {
+-        boost-install boost_python ;
+-    }
++    boost-install boost_python ;
+ }
+ else
+ {

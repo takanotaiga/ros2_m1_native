@@ -21,6 +21,7 @@ GIT_NO_LFS_CONFIG = [
     "-c",
     "filter.lfs.required=false",
 ]
+GIT_FILTER_ARGS = ["--filter=blob:none"]
 
 
 def git_no_lfs(args: list[str]) -> list[str]:
@@ -46,6 +47,59 @@ def run(cmd: list[str], cwd: Path | None = None, capture: bool = False) -> str:
 def is_clean_git_repo(repo_path: Path) -> bool:
     status = run(["git", "status", "--porcelain"], cwd=repo_path, capture=True)
     return status.strip() == ""
+
+
+def clone_repo(repo_url: str, repo_path: Path) -> None:
+    clone_args = [
+        "clone",
+        "--origin",
+        "origin",
+        "--no-checkout",
+        *GIT_FILTER_ARGS,
+        repo_url,
+        str(repo_path),
+    ]
+    try:
+        run(git_no_lfs(clone_args))
+    except RuntimeError:
+        run(
+            git_no_lfs(
+                [
+                    "clone",
+                    "--origin",
+                    "origin",
+                    "--no-checkout",
+                    repo_url,
+                    str(repo_path),
+                ]
+            )
+        )
+
+
+def fetch_repo(repo_path: Path, repo_version: str | None = None) -> bool:
+    base_cmd = ["git", "fetch", "--no-tags", "--force", *GIT_FILTER_ARGS, "origin"]
+    fallback_cmd = ["git", "fetch", "--no-tags", "--force", "origin"]
+
+    if repo_version is not None:
+        try:
+            run(base_cmd + [repo_version], cwd=repo_path)
+            return True
+        except RuntimeError:
+            try:
+                run(fallback_cmd + [repo_version], cwd=repo_path)
+                return True
+            except RuntimeError:
+                try:
+                    run(base_cmd, cwd=repo_path)
+                except RuntimeError:
+                    run(fallback_cmd, cwd=repo_path)
+                return False
+
+    try:
+        run(base_cmd, cwd=repo_path)
+    except RuntimeError:
+        run(fallback_cmd, cwd=repo_path)
+    return False
 
 
 def sync_repo(
@@ -76,18 +130,7 @@ def sync_repo(
 
     if not repo_path.exists():
         print(f"[clone] {repo_name}")
-        run(
-            git_no_lfs(
-                [
-                    "clone",
-                    "--origin",
-                    "origin",
-                    "--no-checkout",
-                    repo_url,
-                    str(repo_path),
-                ]
-            )
-        )
+        clone_repo(repo_url, repo_path)
     else:
         current_url = run(
             ["git", "config", "--get", "remote.origin.url"], cwd=repo_path, capture=True
@@ -107,13 +150,7 @@ def sync_repo(
                 )
 
     print(f"[fetch] {repo_name}")
-    fetched_by_ref = False
-    try:
-        run(["git", "fetch", "--no-tags", "--force", "origin", repo_version], cwd=repo_path)
-        fetched_by_ref = True
-    except RuntimeError:
-        # Fallback for remotes that don't allow direct SHA/ref fetches.
-        run(["git", "fetch", "--no-tags", "--force", "origin"], cwd=repo_path)
+    fetched_by_ref = fetch_repo(repo_path, repo_version)
 
     print(f"[checkout] {repo_name} -> {repo_version}")
     try:

@@ -1,11 +1,12 @@
-name: Isolated Build
+name: Package Verification
 
 on:
-  push:
-    branches: ["master"]
   pull_request:
     branches: ["master"]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -27,15 +28,8 @@ jobs:
       - name: Verify pinned manifests
         run: uv run python scripts/check_repos_pinned.py ros2.lock.repos third_party.repos
 
-  build-macos-isolated:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - macos-14
-          - macos-15
-          - macos-26
-    runs-on: ${{ matrix.runner }}
+  package-macos:
+    runs-on: macos-26
     timeout-minutes: 360
     needs: validate-locks
     steps:
@@ -44,12 +38,17 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
 
-      - name: Run isolated build
-        run: ./scripts/run_isolated_build.sh
+      - name: Build packaged runtime
+        run: ./scripts/build_release.sh
 
-      - name: Upload build log on failure
-        if: failure()
+      - name: Verify packaged runtime
+        run: FORBIDDEN_REPO_PATH="$GITHUB_WORKSPACE" ./scripts/verify_release_artifact.sh
+
+      - name: Build installer package
+        run: ./scripts/package_macos_app.sh
+
+      - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: isolated-build-log-${{ matrix.runner }}
-          path: .build/isolated_build.log
+          name: ros2native-pkg-macos-26
+          path: .release/pkg/ros2native.pkg

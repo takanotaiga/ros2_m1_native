@@ -91,6 +91,18 @@ repositories:
     type: git
     url: https://github.com/freetype/freetype.git
     version: 42608f77f20749dd6ddc9e0536788eaad70ea4b5
+  openssl/openssl:
+    type: git
+    url: https://github.com/openssl/openssl.git
+    version: 7b371d80d959ec9ab4139d09d78e83c090de9779
+  facebook/zstd:
+    type: git
+    url: https://github.com/facebook/zstd.git
+    version: f8745da6ff1ad1e7bab384bd1f9d742439278e99
+  zeromq/libzmq:
+    type: git
+    url: https://github.com/zeromq/libzmq.git
+    version: 622fc6dde99ee172ebaa9c8628d85a7a1995a21d
   madler/zlib:
     type: git
     url: https://github.com/madler/zlib.git
