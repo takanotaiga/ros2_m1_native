@@ -8,8 +8,6 @@ RQT_APP_PATH="${RQT_APP_PATH:-/Applications/rqt.app}"
 RUNTIME_PREFIX="${RUNTIME_PREFIX:-${APP_PATH}/Contents/Resources/runtime}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-PYTHON_BIN="${RUNTIME_PREFIX}/python/bin/python3.11"
-PYTHON_DYLIB="${RUNTIME_PREFIX}/python/lib/libpython3.11.dylib"
 TINYXML_DYLIB="${RUNTIME_PREFIX}/lib/libtinyxml.dylib"
 FREETYPE_DYLIB="${RUNTIME_PREFIX}/deps/lib/libfreetype.6.dylib"
 OPENSSL_CRYPTO_DYLIB="${RUNTIME_PREFIX}/deps/lib/libcrypto.3.dylib"
@@ -55,12 +53,8 @@ change_dep() {
   done <"${MACHO_LIST_FILE}"
 }
 
-if [[ -x "${PYTHON_BIN}" && -f "${PYTHON_DYLIB}" ]]; then
-  OLD_PYTHON_DYLIB="$("${PYTHON_BIN}" -c 'import pathlib, sysconfig; print(pathlib.Path(sysconfig.get_config_var("LIBDIR")) / sysconfig.get_config_var("LDLIBRARY"))')"
-  install_name_tool -id "${PYTHON_DYLIB}" "${PYTHON_DYLIB}" 2>/dev/null || true
-  change_dep "${OLD_PYTHON_DYLIB}" "${PYTHON_DYLIB}"
-fi
-
+# The copied CPython runtime already uses @rpath-relative libpython lookups.
+# Rewriting those install names to absolute bundle paths caused runtime crashes on CI.
 if [[ -f "${TINYXML_DYLIB}" ]]; then
   OLD_TINYXML_DYLIB="$(otool -D "${TINYXML_DYLIB}" | awk 'NR==2 {print $1}')"
   install_name_tool -id "${TINYXML_DYLIB}" "${TINYXML_DYLIB}" 2>/dev/null || true

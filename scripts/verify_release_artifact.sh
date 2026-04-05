@@ -64,5 +64,6 @@ done < <(find "${MACHO_SCAN_DIRS[@]}" -type f -print0 2>/dev/null)
 
 "${RUNNER}" ros2 --help >/dev/null
 "${RUNNER}" python -c 'import rclpy'
+"${RUNNER}" ros2 topic list >/dev/null
 
 echo "Release artifact verification passed for ${APP_PATH}"

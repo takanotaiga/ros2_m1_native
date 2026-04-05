@@ -17,6 +17,7 @@ RELEASE_NATIVE_DEPS_PREFIX="${RUNTIME_PREFIX}/deps"
 RELEASE_PYTHON_HOME="${RUNTIME_PREFIX}/python"
 RELEASE_PYTHON_BIN="${RELEASE_PYTHON_HOME}/bin/python3.11"
 RELEASE_PYTHON_DYLIB="${RELEASE_PYTHON_HOME}/lib/libpython3.11.dylib"
+RUNNER="${APP_PATH}/Contents/Resources/scripts/run_with_runtime_env.sh"
 RELEASE_OPENSSL_CRYPTO_LIBRARY="${RELEASE_NATIVE_DEPS_PREFIX}/lib/libcrypto.3.dylib"
 RELEASE_OPENSSL_SSL_LIBRARY="${RELEASE_NATIVE_DEPS_PREFIX}/lib/libssl.3.dylib"
 RELEASE_ZSTD_LIBRARY="${RELEASE_NATIVE_DEPS_PREFIX}/lib/libzstd.dylib"
@@ -25,24 +26,10 @@ RELEASE_ZMQ_LIBRARY="${RELEASE_NATIVE_DEPS_PREFIX}/lib/libzmq.dylib"
 RELEASE_ZMQ_VERSIONED_LIBRARY="${RELEASE_NATIVE_DEPS_PREFIX}/lib/libzmq.5.dylib"
 RELEASE_COLCON_BUILD_BASE="${RELEASE_BUILD_ROOT}/ros2"
 RELEASE_COLCON_LOG_BASE="${RELEASE_LOG_ROOT}/colcon"
-LISTENER_LOG="${RELEASE_LOG_ROOT}/listener.log"
-TALKER_LOG="${RELEASE_LOG_ROOT}/talker.log"
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
 VERSION="$(
   awk -F'"' '/^version = / {print $2; exit}' pyproject.toml
 )"
-
-cleanup_process() {
-  local pid="$1"
-  if [[ -n "${pid}" ]] && kill -0 "${pid}" >/dev/null 2>&1; then
-    kill "${pid}" >/dev/null 2>&1 || true
-    wait "${pid}" >/dev/null 2>&1 || true
-  fi
-}
-
-LISTENER_PID=""
-TALKER_PID=""
-trap 'cleanup_process "${TALKER_PID}"; cleanup_process "${LISTENER_PID}"' EXIT
 
 if [[ "${CLEAN_RELEASE:-1}" == "1" ]]; then
   rm -rf "${RELEASE_ROOT}" "${APP_PATH}" "${RVIZ_APP_PATH}" "${RQT_APP_PATH}"
@@ -171,6 +158,20 @@ PYTHON_ROOT_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sys; print(sys.prefix)')"
 PYTHON_INCLUDE_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
 PYTHON_LIBRARY="$(resolve_python_library "${RELEASE_PYTHON_HOME}" "${PYTHON_EXECUTABLE}")"
 
+run_runtime_smoke_check() {
+  local phase="$1"
+
+  if [[ ! -x "${RUNNER}" ]]; then
+    echo "ERROR: runtime launcher not found at ${RUNNER}" >&2
+    return 1
+  fi
+
+  echo "Running ${phase} runtime smoke checks..."
+  "${RUNNER}" ros2 --help >/dev/null
+  "${RUNNER}" python -c 'import rclpy'
+  "${RUNNER}" ros2 topic list >/dev/null
+}
+
 BUILD_CMD=(
   "${PYTHON_EXECUTABLE}"
   -c
@@ -243,51 +244,8 @@ if [[ -f "${RELEASE_ZMQ_LIBRARY}" || -f "${RELEASE_ZMQ_VERSIONED_LIBRARY}" ]]; t
 fi
 
 "${BUILD_CMD[@]}"
+run_runtime_smoke_check "pre-fixup"
 "${ROOT_DIR}/scripts/fixup_release_artifact.sh"
-
-set +u
-source "${RUNTIME_PREFIX}/setup.bash"
-set -u
-
-ros2 doctor --report || true
-
-rm -f "${LISTENER_LOG}" "${TALKER_LOG}"
-/bin/bash -lc "
-  set -euo pipefail
-  source '${RUNTIME_PREFIX}/share/ros2native/activate.sh'
-  set +u
-  source '${RUNTIME_PREFIX}/setup.bash'
-  set -u
-  exec ros2 run demo_nodes_py listener
-" >"${LISTENER_LOG}" 2>&1 &
-LISTENER_PID="$!"
-
-sleep 8
-
-/bin/bash -lc "
-  set -euo pipefail
-  source '${RUNTIME_PREFIX}/share/ros2native/activate.sh'
-  set +u
-  source '${RUNTIME_PREFIX}/setup.bash'
-  set -u
-  exec ros2 run demo_nodes_cpp talker
-" >"${TALKER_LOG}" 2>&1 &
-TALKER_PID="$!"
-
-sleep 12
-
-cleanup_process "${TALKER_PID}"
-cleanup_process "${LISTENER_PID}"
-TALKER_PID=""
-LISTENER_PID=""
-
-if ! grep -q 'I heard: \[Hello World:' "${LISTENER_LOG}"; then
-  echo "ERROR: talker/listener smoke test failed." >&2
-  echo "--- listener log ---" >&2
-  cat "${LISTENER_LOG}" >&2
-  echo "--- talker log ---" >&2
-  cat "${TALKER_LOG}" >&2
-  exit 1
-fi
+run_runtime_smoke_check "post-fixup"
 
 echo "Release build completed at ${RUNTIME_PREFIX}"
