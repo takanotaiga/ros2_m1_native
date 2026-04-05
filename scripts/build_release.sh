@@ -118,13 +118,58 @@ fi
 
 PYTHON_EXECUTABLE="${RELEASE_PYTHON_HOME}/bin/python"
 PYTHON_CONFIG_EXECUTABLE="${RELEASE_PYTHON_HOME}/bin/python3-config"
+resolve_python_library() {
+  local python_home="$1"
+  local python_executable="$2"
+  local python_base_prefix=""
+  local python_version=""
+  local search_root
+  local candidate
+  local found=""
+  local -a search_roots=()
+
+  if [[ -x "${python_executable}" ]]; then
+    python_base_prefix="$("${python_executable}" -c 'import pathlib, sys; print(pathlib.Path(sys.base_prefix))')"
+    python_version="$("${python_executable}" -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')"
+  fi
+
+  search_roots+=("${python_home}")
+  if [[ -n "${python_base_prefix}" && "${python_base_prefix}" != "${python_home}" ]]; then
+    search_roots+=("${python_base_prefix}")
+  fi
+
+  for search_root in "${search_roots[@]}"; do
+    if [[ -n "${python_version}" ]]; then
+      for candidate in \
+        "${search_root}/lib/libpython${python_version}.dylib" \
+        "${search_root}/Python.framework/Versions/${python_version}/Python" \
+        "${search_root}/Frameworks/Python.framework/Versions/${python_version}/Python"; do
+        if [[ -f "${candidate}" ]]; then
+          printf '%s\n' "${candidate}"
+          return 0
+        fi
+      done
+    fi
+
+    found="$(
+      find "${search_root}" -maxdepth 4 -type f \
+        \( -name 'libpython*.dylib' -o -path '*/Python.framework/*/Python' \) \
+        | LC_ALL=C sort \
+        | head -n 1
+    )"
+    if [[ -n "${found}" ]]; then
+      printf '%s\n' "${found}"
+      return 0
+    fi
+  done
+
+  echo "ERROR: failed to locate a Python library under ${python_home} or ${python_base_prefix}." >&2
+  return 1
+}
+
 PYTHON_ROOT_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sys; print(sys.prefix)')"
 PYTHON_INCLUDE_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
-PYTHON_LIBRARY_NAME="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_config_var("LDLIBRARY"))')"
-PYTHON_LIBRARY="${RELEASE_PYTHON_HOME}/lib/${PYTHON_LIBRARY_NAME}"
-if [[ ! -f "${PYTHON_LIBRARY}" ]]; then
-  PYTHON_LIBRARY="$("${PYTHON_EXECUTABLE}" -c 'import pathlib, sysconfig; print(pathlib.Path(sysconfig.get_config_var("LIBDIR")) / sysconfig.get_config_var("LDLIBRARY"))')"
-fi
+PYTHON_LIBRARY="$(resolve_python_library "${RELEASE_PYTHON_HOME}" "${PYTHON_EXECUTABLE}")"
 
 BUILD_CMD=(
   "${PYTHON_EXECUTABLE}"
