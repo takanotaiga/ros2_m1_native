@@ -7,9 +7,10 @@ cd "${ROOT_DIR}"
 
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
 HOST_ARCH="$(uname -m)"
-THIRD_PARTY_SRC_DIR="${ROOT_DIR}/.deps/third_party"
-CMAKE_BIN="${ROOT_DIR}/.local/tools/cmake/bin/cmake"
-NATIVE_PREFIX="${ROOT_DIR}/.local/deps"
+BUILD_ROOT="${ROS2_M1_NATIVE_BUILD_ROOT:-${ROOT_DIR}/.build}"
+THIRD_PARTY_SRC_DIR="${ROS2_M1_NATIVE_THIRD_PARTY_SRC_DIR:-${ROOT_DIR}/.deps/third_party}"
+CMAKE_BIN="${ROS2_M1_NATIVE_CMAKE_BIN:-${ROOT_DIR}/.local/tools/cmake/bin/cmake}"
+NATIVE_PREFIX="${ROS2_M1_NATIVE_NATIVE_DEPS_PREFIX:-${ROOT_DIR}/.local/deps}"
 QT_PREFIX="${NATIVE_PREFIX}/qt5"
 
 if [[ "${HOST_ARCH}" != "arm64" && "${HOST_ARCH}" != "x86_64" ]]; then
@@ -27,60 +28,68 @@ export PATH="${NATIVE_PREFIX}/bin:${PATH}"
 export PKG_CONFIG_PATH="${NATIVE_PREFIX}/lib/pkgconfig:${NATIVE_PREFIX}/share/pkgconfig:${PKG_CONFIG_PATH:-}"
 
 TINYXML2_SRC_DIR="${THIRD_PARTY_SRC_DIR}/leethomason/tinyxml2"
-TINYXML2_BUILD_DIR="${ROOT_DIR}/.build/tinyxml2"
+TINYXML2_BUILD_DIR="${BUILD_ROOT}/tinyxml2"
 EIGEN_SRC_DIR="${THIRD_PARTY_SRC_DIR}/libeigen/eigen"
-EIGEN_BUILD_DIR="${ROOT_DIR}/.build/eigen"
+EIGEN_BUILD_DIR="${BUILD_ROOT}/eigen"
 CERES_SRC_DIR="${THIRD_PARTY_SRC_DIR}/ceres-solver/ceres-solver"
-CERES_BUILD_DIR="${ROOT_DIR}/.build/ceres"
+CERES_BUILD_DIR="${BUILD_ROOT}/ceres"
 GEOGRAPHICLIB_SRC_DIR="${THIRD_PARTY_SRC_DIR}/geographiclib/geographiclib"
-GEOGRAPHICLIB_BUILD_DIR="${ROOT_DIR}/.build/geographiclib"
+GEOGRAPHICLIB_BUILD_DIR="${BUILD_ROOT}/geographiclib"
 XTL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/xtensor-stack/xtl"
-XTL_BUILD_DIR="${ROOT_DIR}/.build/xtl"
+XTL_BUILD_DIR="${BUILD_ROOT}/xtl"
 XSIMD_SRC_DIR="${THIRD_PARTY_SRC_DIR}/xtensor-stack/xsimd"
-XSIMD_BUILD_DIR="${ROOT_DIR}/.build/xsimd"
+XSIMD_BUILD_DIR="${BUILD_ROOT}/xsimd"
 XTENSOR_SRC_DIR="${THIRD_PARTY_SRC_DIR}/xtensor-stack/xtensor"
-XTENSOR_BUILD_DIR="${ROOT_DIR}/.build/xtensor"
+XTENSOR_BUILD_DIR="${BUILD_ROOT}/xtensor"
 NANOFLANN_SRC_DIR="${THIRD_PARTY_SRC_DIR}/jlblancoc/nanoflann"
-NANOFLANN_BUILD_DIR="${ROOT_DIR}/.build/nanoflann"
+NANOFLANN_BUILD_DIR="${BUILD_ROOT}/nanoflann"
 OMPL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/ompl/ompl"
-OMPL_BUILD_DIR="${ROOT_DIR}/.build/ompl"
+OMPL_BUILD_DIR="${BUILD_ROOT}/ompl"
 ASIO_SRC_DIR="${THIRD_PARTY_SRC_DIR}/chriskohlhoff/asio"
 BOOST_SRC_DIR="${THIRD_PARTY_SRC_DIR}/boostorg/boost"
 RAPIDJSON_SRC_DIR="${THIRD_PARTY_SRC_DIR}/tencent/rapidjson"
 NLOHMANN_JSON_SRC_DIR="${THIRD_PARTY_SRC_DIR}/nlohmann/json"
-NLOHMANN_JSON_BUILD_DIR="${ROOT_DIR}/.build/nlohmann_json"
+NLOHMANN_JSON_BUILD_DIR="${BUILD_ROOT}/nlohmann_json"
 FMT_SRC_DIR="${THIRD_PARTY_SRC_DIR}/fmtlib/fmt"
-FMT_BUILD_DIR="${ROOT_DIR}/.build/fmt"
+FMT_BUILD_DIR="${BUILD_ROOT}/fmt"
 RUCKIG_SRC_DIR="${THIRD_PARTY_SRC_DIR}/pantor/ruckig"
-RUCKIG_BUILD_DIR="${ROOT_DIR}/.build/ruckig"
+RUCKIG_BUILD_DIR="${BUILD_ROOT}/ruckig"
 LZ4_SRC_DIR="${THIRD_PARTY_SRC_DIR}/lz4/lz4"
 GLEW_SRC_DIR="${THIRD_PARTY_SRC_DIR}/Perlmint/glew-cmake"
-GLEW_BUILD_DIR="${ROOT_DIR}/.build/glew"
+GLEW_BUILD_DIR="${BUILD_ROOT}/glew"
 FREEGLUT_SRC_DIR="${THIRD_PARTY_SRC_DIR}/freeglut/freeglut"
-FREEGLUT_BUILD_DIR="${ROOT_DIR}/.build/freeglut"
+FREEGLUT_BUILD_DIR="${BUILD_ROOT}/freeglut"
 GRAPHICSMAGICK_SRC_DIR="${THIRD_PARTY_SRC_DIR}/GraphicsMagick/graphicsmagick"
+FREETYPE_SRC_DIR="${THIRD_PARTY_SRC_DIR}/freetype/freetype"
+FREETYPE_BUILD_DIR="${BUILD_ROOT}/freetype"
+OPENSSL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/openssl/openssl"
+OPENSSL_BUILD_DIR="${BUILD_ROOT}/openssl"
+ZSTD_SRC_DIR="${THIRD_PARTY_SRC_DIR}/facebook/zstd"
+ZSTD_BUILD_DIR="${BUILD_ROOT}/zstd"
+LIBZMQ_SRC_DIR="${THIRD_PARTY_SRC_DIR}/zeromq/libzmq"
+LIBZMQ_BUILD_DIR="${BUILD_ROOT}/libzmq"
 FLANN_SRC_DIR="${THIRD_PARTY_SRC_DIR}/flann-lib/flann"
-FLANN_BUILD_DIR="${ROOT_DIR}/.build/flann"
+FLANN_BUILD_DIR="${BUILD_ROOT}/flann"
 QHULL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/qhull/qhull"
-QHULL_BUILD_DIR="${ROOT_DIR}/.build/qhull"
+QHULL_BUILD_DIR="${BUILD_ROOT}/qhull"
 PCL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/pointcloudlibrary/pcl"
-PCL_BUILD_DIR="${ROOT_DIR}/.build/pcl"
+PCL_BUILD_DIR="${BUILD_ROOT}/pcl"
 BULLET_SRC_DIR="${THIRD_PARTY_SRC_DIR}/bulletphysics/bullet3"
-BULLET_BUILD_DIR="${ROOT_DIR}/.build/bullet3"
+BULLET_BUILD_DIR="${BUILD_ROOT}/bullet3"
 ASSIMP_SRC_DIR="${THIRD_PARTY_SRC_DIR}/assimp/assimp"
-ASSIMP_BUILD_DIR="${ROOT_DIR}/.build/assimp"
+ASSIMP_BUILD_DIR="${BUILD_ROOT}/assimp"
 OCTOMAP_SRC_DIR="${THIRD_PARTY_SRC_DIR}/OctoMap/octomap"
-OCTOMAP_BUILD_DIR="${ROOT_DIR}/.build/octomap"
+OCTOMAP_BUILD_DIR="${BUILD_ROOT}/octomap"
 LIBCCD_SRC_DIR="${THIRD_PARTY_SRC_DIR}/danfis/libccd"
-LIBCCD_BUILD_DIR="${ROOT_DIR}/.build/libccd"
+LIBCCD_BUILD_DIR="${BUILD_ROOT}/libccd"
 FCL_SRC_DIR="${THIRD_PARTY_SRC_DIR}/flexible-collision-library/fcl"
-FCL_BUILD_DIR="${ROOT_DIR}/.build/fcl"
+FCL_BUILD_DIR="${BUILD_ROOT}/fcl"
 OPENCV_SRC_DIR="${THIRD_PARTY_SRC_DIR}/opencv/opencv"
-OPENCV_BUILD_DIR="${ROOT_DIR}/.build/opencv"
+OPENCV_BUILD_DIR="${BUILD_ROOT}/opencv"
 QTBASE_SRC_DIR="${THIRD_PARTY_SRC_DIR}/qt/qtbase"
-QTBASE_BUILD_DIR="${ROOT_DIR}/.build/qtbase"
+QTBASE_BUILD_DIR="${BUILD_ROOT}/qtbase"
 QTSVG_SRC_DIR="${THIRD_PARTY_SRC_DIR}/qt/qtsvg"
-QTSVG_BUILD_DIR="${ROOT_DIR}/.build/qtsvg"
+QTSVG_BUILD_DIR="${BUILD_ROOT}/qtsvg"
 QT_QMAKE="${QT_PREFIX}/bin/qmake"
 QT_MAC_CONF="${QTBASE_SRC_DIR}/mkspecs/common/mac.conf"
 QT_PNG_PRIV="${QTBASE_SRC_DIR}/src/3rdparty/libpng/pngpriv.h"
@@ -107,6 +116,22 @@ apply_git_patch_if_needed() {
   fi
   echo "ERROR: failed to apply patch '${patch_file}' in '${repo_dir}'." >&2
   exit 1
+}
+
+disable_boost_numpy_install() {
+  local jamfile="${BOOST_SRC_DIR}/libs/python/build/Jamfile"
+  if [[ ! -f "${jamfile}" ]]; then
+    echo "ERROR: Boost.Python Jamfile not found: ${jamfile}" >&2
+    exit 1
+  fi
+
+  perl -0pi -e '
+    my $before = $_;
+    s@if \[ python\.configured \]\n\{\n.*?\n\}\nelse@if [ python.configured ]\n{\n    boost-install boost_python ;\n}\nelse@s;
+    if ($_ eq $before && $_ !~ /if \[ python\.configured \]\n\{\n\s*boost-install boost_python ;\n\}\nelse/s) {
+      die "unexpected Boost.Python Jamfile shape\n";
+    }
+  ' "${jamfile}"
 }
 
 if [[ -z "${SDKROOT:-}" ]] && command -v xcrun >/dev/null 2>&1; then
@@ -313,6 +338,8 @@ build_boost_if_needed() {
   local boost_python_tag=""
   local boost_python_include_dir=""
   local boost_python_lib_dir=""
+  local boost_python_library_name=""
+  local boost_python_root_dir=""
   local boost_python_lib=""
   local required_boost_paths=(
     "${NATIVE_PREFIX}/include/boost/version.hpp"
@@ -323,7 +350,9 @@ build_boost_if_needed() {
     "${NATIVE_PREFIX}/lib/libboost_random.dylib"
   )
 
-  if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
+  if [[ -n "${ROS2_M1_NATIVE_PYTHON_EXECUTABLE:-}" && -x "${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}" ]]; then
+    boost_python_executable="${ROS2_M1_NATIVE_PYTHON_EXECUTABLE}"
+  elif [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
     boost_python_executable="$("${ROOT_DIR}/.venv/bin/python" -c 'import pathlib,sys; print(pathlib.Path(sys.base_prefix) / "bin" / "python3")')"
   fi
   if [[ -z "${boost_python_executable}" || ! -x "${boost_python_executable}" ]]; then
@@ -337,7 +366,12 @@ build_boost_if_needed() {
   boost_python_version="$("${boost_python_executable}" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
   boost_python_tag="$("${boost_python_executable}" -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')"
   boost_python_include_dir="$("${boost_python_executable}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
-  boost_python_lib_dir="$("${boost_python_executable}" -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+  boost_python_library_name="$("${boost_python_executable}" -c 'import sysconfig; print(sysconfig.get_config_var("LDLIBRARY"))')"
+  boost_python_root_dir="$(cd "$(dirname "${boost_python_executable}")/.." && pwd)"
+  boost_python_lib_dir="${boost_python_root_dir}/lib"
+  if [[ ! -f "${boost_python_lib_dir}/${boost_python_library_name}" ]]; then
+    boost_python_lib_dir="$("${boost_python_executable}" -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+  fi
   boost_python_lib="${NATIVE_PREFIX}/lib/libboost_python${boost_python_tag}.dylib"
 
   local path
@@ -355,6 +389,7 @@ build_boost_if_needed() {
 
   pushd "${BOOST_SRC_DIR}" >/dev/null
   git submodule update --init --recursive --jobs "${JOBS}"
+  disable_boost_numpy_install
   ./bootstrap.sh --prefix="${NATIVE_PREFIX}" --with-python="${boost_python_executable}"
   ./b2 -j"${JOBS}" \
     toolset=clang \
@@ -462,6 +497,88 @@ if [[ ! -f "${NATIVE_PREFIX}/lib/liblz4.dylib" ]]; then
   make -C lib -j"${JOBS}" PREFIX="${NATIVE_PREFIX}"
   make -C lib PREFIX="${NATIVE_PREFIX}" install
   popd >/dev/null
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/lib/libcrypto.3.dylib" || ! -f "${NATIVE_PREFIX}/lib/libssl.3.dylib" ]]; then
+  case "${HOST_ARCH}" in
+    arm64)
+      OPENSSL_TARGET="darwin64-arm64-cc"
+      ;;
+    x86_64)
+      OPENSSL_TARGET="darwin64-x86_64-cc"
+      ;;
+    *)
+      echo "ERROR: unsupported host architecture for OpenSSL: ${HOST_ARCH}" >&2
+      exit 1
+      ;;
+  esac
+
+  rm -rf "${OPENSSL_BUILD_DIR}"
+  mkdir -p "${OPENSSL_BUILD_DIR}"
+  pushd "${OPENSSL_SRC_DIR}" >/dev/null
+  make distclean >/dev/null 2>&1 || true
+  CFLAGS="-O2 -arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
+  CXXFLAGS="-O2 -arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
+  LDFLAGS="-arch ${HOST_ARCH} -isysroot ${SDKROOT}" \
+  ./Configure "${OPENSSL_TARGET}" \
+    shared \
+    no-apps \
+    no-tests \
+    --prefix="${NATIVE_PREFIX}" \
+    --openssldir="${NATIVE_PREFIX}/ssl" \
+    --libdir=lib
+  make -j"${JOBS}"
+  make install_sw
+  popd >/dev/null
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/lib/libzstd.1.dylib" ]]; then
+  rm -rf "${ZSTD_BUILD_DIR}"
+  "${CMAKE_BIN}" -S "${ZSTD_SRC_DIR}/build/cmake" -B "${ZSTD_BUILD_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${NATIVE_PREFIX}" \
+    -DCMAKE_PREFIX_PATH="${NATIVE_PREFIX}" \
+    -DBUILD_SHARED_LIBS=ON \
+    -DZSTD_BUILD_SHARED=ON \
+    -DZSTD_BUILD_STATIC=OFF \
+    -DZSTD_BUILD_PROGRAMS=OFF \
+    -DZSTD_BUILD_TESTS=OFF
+  "${CMAKE_BIN}" --build "${ZSTD_BUILD_DIR}" --parallel "${JOBS}"
+  "${CMAKE_BIN}" --install "${ZSTD_BUILD_DIR}"
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/lib/libzmq.5.dylib" ]]; then
+  rm -rf "${LIBZMQ_BUILD_DIR}"
+  "${CMAKE_BIN}" -S "${LIBZMQ_SRC_DIR}" -B "${LIBZMQ_BUILD_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${NATIVE_PREFIX}" \
+    -DCMAKE_PREFIX_PATH="${NATIVE_PREFIX}" \
+    -DBUILD_SHARED=ON \
+    -DBUILD_STATIC=OFF \
+    -DBUILD_TESTS=OFF \
+    -DENABLE_DRAFTS=OFF \
+    -DWITH_DOC=OFF \
+    -DWITH_LIBSODIUM=OFF \
+    -DWITH_PERF_TOOL=OFF \
+    -DWITH_TLS=OFF \
+    -DZMQ_BUILD_TESTS=OFF
+  "${CMAKE_BIN}" --build "${LIBZMQ_BUILD_DIR}" --parallel "${JOBS}"
+  "${CMAKE_BIN}" --install "${LIBZMQ_BUILD_DIR}"
+fi
+
+if [[ ! -f "${NATIVE_PREFIX}/lib/libfreetype.6.dylib" ]]; then
+  rm -rf "${FREETYPE_BUILD_DIR}"
+  "${CMAKE_BIN}" -S "${FREETYPE_SRC_DIR}" -B "${FREETYPE_BUILD_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_INSTALL_PREFIX="${NATIVE_PREFIX}" \
+    -DFT_DISABLE_ZLIB=ON \
+    -DFT_DISABLE_BZIP2=ON \
+    -DFT_DISABLE_PNG=ON \
+    -DFT_DISABLE_HARFBUZZ=ON \
+    -DFT_DISABLE_BROTLI=ON
+  "${CMAKE_BIN}" --build "${FREETYPE_BUILD_DIR}" --parallel "${JOBS}"
+  "${CMAKE_BIN}" --install "${FREETYPE_BUILD_DIR}"
 fi
 
 if [[ ! -f "${NATIVE_PREFIX}/lib/libglew.dylib" && ! -f "${NATIVE_PREFIX}/lib/libGLEW.dylib" ]]; then
