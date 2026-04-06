@@ -158,6 +158,41 @@ PYTHON_ROOT_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sys; print(sys.prefix)')"
 PYTHON_INCLUDE_DIR="$("${PYTHON_EXECUTABLE}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
 PYTHON_LIBRARY="$(resolve_python_library "${RELEASE_PYTHON_HOME}" "${PYTHON_EXECUTABLE}")"
 
+run_runtime_command() {
+  local user_value="${USER:-${LOGNAME:-runner}}"
+  local logname_value="${LOGNAME:-${user_value}}"
+
+  /usr/bin/env -i \
+    HOME="${HOME:-/tmp}" \
+    USER="${user_value}" \
+    LOGNAME="${logname_value}" \
+    TMPDIR="${TMPDIR:-/tmp}" \
+    PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+    "${RUNNER}" "$@"
+}
+
+print_runtime_smoke_diagnostics() {
+  local command_label="$1"
+  local rclpy_extension=""
+
+  echo "Runtime smoke diagnostics after failure: ${command_label}" >&2
+  echo "Python executable: ${PYTHON_EXECUTABLE}" >&2
+  otool -L "${PYTHON_EXECUTABLE}" >&2 || true
+
+  if [[ -f "${PYTHON_LIBRARY}" ]]; then
+    echo "Python library: ${PYTHON_LIBRARY}" >&2
+    otool -L "${PYTHON_LIBRARY}" >&2 || true
+  fi
+
+  rclpy_extension="$(
+    find "${RUNTIME_PREFIX}" -type f -name '_rclpy_pybind11*.so' | LC_ALL=C sort | head -n 1
+  )"
+  if [[ -n "${rclpy_extension}" ]]; then
+    echo "rclpy extension: ${rclpy_extension}" >&2
+    otool -L "${rclpy_extension}" >&2 || true
+  fi
+}
+
 run_runtime_smoke_check() {
   local phase="$1"
 
@@ -167,9 +202,19 @@ run_runtime_smoke_check() {
   fi
 
   echo "Running ${phase} runtime smoke checks..."
-  "${RUNNER}" ros2 --help >/dev/null
-  "${RUNNER}" python -c 'import rclpy'
-  "${RUNNER}" ros2 topic list >/dev/null
+
+  if ! run_runtime_command ros2 --help >/dev/null; then
+    print_runtime_smoke_diagnostics "ros2 --help"
+    return 1
+  fi
+  if ! run_runtime_command python -c 'import rclpy'; then
+    print_runtime_smoke_diagnostics "python -c import rclpy"
+    return 1
+  fi
+  if ! run_runtime_command ros2 topic list >/dev/null; then
+    print_runtime_smoke_diagnostics "ros2 topic list"
+    return 1
+  fi
 }
 
 BUILD_CMD=(

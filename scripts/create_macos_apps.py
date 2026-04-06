@@ -87,6 +87,19 @@ if [[ ! -f "${SETUP_SCRIPT}" ]]; then
   exit 1
 fi
 
+if [[ "${ROS2NATIVE_RUNTIME_ENV_SANITIZED:-0}" != "1" ]]; then
+  USER_VALUE="${USER:-${LOGNAME:-$(id -un 2>/dev/null || echo runner)}}"
+  LOGNAME_VALUE="${LOGNAME:-${USER_VALUE}}"
+  exec /usr/bin/env -i \
+    HOME="${HOME:-/tmp}" \
+    USER="${USER_VALUE}" \
+    LOGNAME="${LOGNAME_VALUE}" \
+    TMPDIR="${TMPDIR:-/tmp}" \
+    PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+    ROS2NATIVE_RUNTIME_ENV_SANITIZED=1 \
+    "$0" "$@"
+fi
+
 sanitize_runtime_env() {
   unset AMENT_PREFIX_PATH
   unset COLCON_CURRENT_PREFIX
